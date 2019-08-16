@@ -1,0 +1,22 @@
+---
+title: Welcome!
+output: html_document
+---
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/cat.gif)
+
+These are the codebooks I have created while learning to code.  
+Feel free to use them and reach out with suggestions.
+
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_r.png" width="500">
+
+[Basic R](r_basic.html)
+
+[Census: Tidycensus](r_census.html)
+
+\newline
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_python.png" width="500">
