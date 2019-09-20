@@ -1,0 +1,439 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+```{r echo=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/r_lubridate.png)
+
+```{r warning=FALSE, message=FALSE}
+library(lubridate)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **DateTimes**
+
+***
+
+A **date-time** is a point on the timeline stored as the number of sections since 1970-01-01 00:00:00 UTC  
+
+```{r}
+as_datetime(1511870400)
+```
+
+<br>
+
+A **date** is a point on the timeline stored as the number of days since 1970-01-01
+
+```{r}
+as_date(17498)
+```
+
+<br>
+
+A **time** is a point on the timeline stored as the number of seconds since 00:00:00
+
+```{r}
+hms::as.hms(85)
+```
+
+****
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Creating**
+
+****
+
+### **Now**
+
+#### *-System*
+
+```{r}
+Sys.time()
+```
+
+<br>
+
+```{r}
+Sys.Date()
+```
+
+<br>
+
+#### *-Lubridate*
+
+```{r}
+now()
+```
+
+<br>
+
+```{r}
+today()
+```
+
+****
+
+### **Parsing**
+
+Just specify the order or the components in the function. For example, `08/07/06` could be: 
+
+* Aug 7, 2006 
+* Jul 8, 2006
+* Jul 6, 2008
+* Jun 7, 2008?
+
+```{r}
+ymd("08/07/06")
+ydm("08/07/06")
+dmy("08/07/06")
+mdy("08/07/06")
+```
+
+<br>
+
+It also works for more complicated renderings like "The 4th of July, 2018"
+
+```{r}
+dmy("The 4th of July, 2018")
+```
+
+<br>
+
+And for time
+
+```{r}
+mdy_hms("08/07/06 10:09:30")
+```
+
+<br>
+
+For more complex strings, the format can be specified 
+
+* `%Y`: 4-digit year (1982)
+* `%y`: 2-digit year (82)
+* `%m`: 2-digit month (01)
+* `%d`: 2-digit day of the month (13)
+* `%A`: weekday (Wednesday)
+* `%a`: abbreviated weekday (Wed)
+* `%B`: month (January)
+* `%b`: abbreviated month (Jan)
+
+```{r}
+as.Date("1982-01-13")
+as.Date("Jan-13-82", format = "%b-%d-%y")
+as.Date("13 January, 1982", format = "%d %B, %Y")
+```
+
+<br>
+
+* `%H`: hours as a decimal number (00-23)
+* `%I`: hours as a decimal number (01-12)
+* `%M`: minutes as a decimal number
+* `%S`: seconds as a decimal number
+* `%T`: shorthand notation for the typical format %H:%M:%S
+* `%p`: AM/PM indicator
+
+```{r}
+as.POSIXct("2012-5-12 14:23:08")
+as.POSIXct("May 12, '12 hours:14 minutes:23 seconds:08", 
+           format = "%B %d, '%y hours:%H minutes:%M seconds:%S")
+```
+
+<br>
+
+This can also be used to reformat the entry
+
+```{r}
+Sys.Date()
+format(Sys.Date(), format = "%d %B, %Y")
+format(Sys.Date(), format = "Today is a %A!")
+```
+
+***
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Timezones**
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/r_timezones.png)
+
+### **Recognized Zones**
+
+```{r}
+OlsonNames()
+```
+
+****
+
+### **Current Zone**
+
+```{r echo=FALSE}
+mystery_time <- now(tzone = "Pacific/Truk")
+```
+
+#### *-System*
+
+```{r}
+Sys.timezone()
+```
+
+#### *-Lubridate*
+
+```{r}
+tz(mystery_time)
+```
+
+****
+
+### **Switching Zones**
+
+```{r}
+now()
+now(tzone = "America/Sitka")
+```
+
+<br>
+
+#### *- Correcting a mistake*
+
+```{r}
+mystery_time
+
+force_tz(mystery_time, tzone = "America/New_York")
+```
+
+#### *- Converting*
+
+```{r}
+mystery_time
+
+with_tz(mystery_time, tzone = "America/New_York")
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Trimming**
+
+****
+
+```{r}
+example_date <- now()
+example_date
+```
+
+### **Extracting**
+
+```{r}
+date(example_date)
+```
+
+<br>
+
+```{r}
+year(example_date)
+```
+
+<br>
+
+```{r}
+month(example_date, label = TRUE)
+```
+
+
+
+<br>
+
+```{r}
+day(example_date)
+```
+
+<br>
+
+
+```{r}
+wday(example_date, label = TRUE)
+```
+
+<br>
+
+```{r}
+hour(example_date)
+```
+
+<br>
+
+```{r}
+minute(example_date)
+```
+
+<br>
+
+```{r}
+second(example_date)
+```
+
+<br>
+
+```{r}
+week(example_date)
+```
+
+<br>
+
+```{r}
+quarter(example_date)
+```
+
+<br>
+
+```{r}
+dst(example_date) #Daylight savings in effect
+```
+
+<br>
+
+```{r}
+leap_year(example_date)
+```
+
+****
+
+### **Rounding**
+
+#### *- Backwards*
+
+```{r}
+floor_date(example_date, unit = "hour")
+```
+
+<br>
+
+#### *- Forwards*
+
+```{r}
+ceiling_date(example_date, unit = "hour")
+```
+
+<br>
+
+#### *- Closest*
+
+```{r}
+round_date(example_date, unit = "hour")
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Comparisons**
+
+****
+
+### **Math**
+
+Which is more important: the datetime in the real world or the length of time 
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/r_date_math.png)
+
+|.                      |Normal Day             |Enter Daylight Savings   |Exit Daylight Savings  |
+|-----------------------|-----------------------|-------------------------|-----------------------|
+|.                      |*Normal*               |*Spring forward an hour* |*Fall back an hour*    |
+|Example                |2018-01-01 **24**:00:00|2018-03-10 **24**:00:00  |2018-11-03 **24**:00:00|
+|+3 Period `hours(3)`   |2018-01-01 **03**:00:00|2018-03-11 **03**:00:00  |2018-11-04 **03**:00:00|
+|+3 Duration `dhours(3)`|2018-01-01 **03**:00:00|2018-03-11 **04**:00:00  |2018-11-04 **02**:00:00|
+
+<br>
+
+|.                     |Normal Year     |Leap Year       |
+|----------------------|----------------|----------------|
+|.                     |*28 days in Feb*|*29 days in Feb*|
+|Example               |2018-09-**20**  |2019-09-**20**  |
+|+1 Period `year(1)`   |2019-09-**20**  |2020-09-**20**  |
+|+1 Duration `dyear(1)`|2019-09-**20**  |2020-09-**19**  |
+
+#### *- Periods*
+
+```{r}
+now() + years(1) + weeks(3) + days(4) + hours(5) + minutes(6) + seconds(7)
+```
+
+#### *- Durations*
+
+```{r}
+now() + dyears(1) + dweeks(3) + ddays(4) + dhours(5) + dminutes(6) + dseconds(7)
+```
+
+#### *- Months*
+
+For months, there is only `months()` because there is nothing impacting a straight addition. However, there are imaginary dates that need to be dealt with: 
+
+```{r}
+ymd("2019-1-31") + months(1)
+ymd("2019-1-31") %>% add_with_rollback(months(1))
+ymd("2019-1-31") %>% add_with_rollback(months(1), roll_to_first = TRUE)
+ymd("2019-1-31") + days(30)
+```
+
+****
+
+### **Intervals**
+
+#### *- Set*
+
+```{r}
+ryan <- interval(ymd("1990-11-04"), today())
+ryan
+```
+
+#### *- Measure*
+
+```{r}
+int_length(ryan) %>% dseconds()
+```
+
+#### *- Modify*
+
+```{r}
+ryan
+int_start(ryan) <- ymd("1990-11-05")
+int_end(ryan) <-ymd("2990-11-05")
+ryan
+
+int_shift(ryan, days(5))
+int_shift(ryan, years(-10))
+```
+
+#### *- Within*
+
+```{r}
+the_90s <- interval(ymd("1990-01-01"), ymd("1999-12-31"))
+
+now() %within% the_90s
+ymd("1990-11-04") %within% the_90s
+```
+
+#### *- Overlap*
+
+```{r}
+the_1900s <- interval(ymd("1900-01-01"), ymd("1999-12-31"))
+
+the_90s %within% the_1900s
+the_1900s %within% the_90s
+
+int_overlaps(the_90s,the_1900s)
+int_overlaps(the_1900s, the_90s)
+```
+
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)

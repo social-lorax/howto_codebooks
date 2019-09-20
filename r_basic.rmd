@@ -1,0 +1,893 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+```{r echo=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/Basic_R_head.png)
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Super Basic**
+
+***
+
+### **Comments**
+
+```{r}
+# This is a comment, it won't do anything
+```
+
+***
+
+### **Help**
+
+Use a `?` to pull up information on a package and its arguments
+```{r eval=FALSE}
+?round
+```
+
+***
+
+### **Data Types**
+
+#### *- Checking*
+
+```{r}
+typeof(100L)
+typeof(100.0)
+typeof('100')
+typeof(100==100)
+```
+
+Integer = number with no decimal  
+Double = number with decimals  
+Character = value-less characters  
+Logical = binary value of True/False or 1/0
+
+<br>
+
+#### *- Use*
+
+Using a double in an operation will return a double 
+
+```{r}
+typeof(1.0 + 1L)
+```
+
+Using just integers will result in integers unless it is division
+
+```{r}
+typeof(1L + 1L)
+typeof(1L / 1L)
+```
+
+<br>
+
+#### *- Conversion*
+```{r eval=FALSE}
+as.integer()
+as.double()
+as.character()
+```
+
+<br>
+
+#### *- Boolean Operators*
+
+|**Function**|**Symbol**|
+|------------|--------|
+|Equal | `==` |
+|Not Equal | `!=` |
+|Greater Than | `>` |
+|Greater Than or Equal to | `>=` |
+|Less Than | `<` |
+|Less Than or Equal to | `<=` |
+|And | `&` |
+|Or | `|` |
+
+***
+
+### **Variables**
+
+```{r}
+variable <- "whatever you want"
+```
+
+Setting a variable to a variable copies the value; it is NOT a link
+
+```{r}
+a <- 1
+b <- a
+
+a <- 'see!'
+```
+
+```{r}
+a
+b
+```
+
+***
+
+### **Factors**
+
+(Making strings into categorical variables)
+
+*Basic String*
+```{r}
+example_strings <- c("medium", "slow", "slow", "medium", "fast")
+class(example_strings)
+```
+
+*Categorical Factor*
+```{r}
+example_factor <- factor(example_strings)
+class(example_factor)
+```
+
+```{r echo = FALSE}
+example_factor
+```
+
+*Ordinal Factor*
+```{r}
+example_ordered_factor <- factor(example_strings, ordered = TRUE, levels = c("slow","medium","fast"))
+class(example_ordered_factor)
+```
+
+```{r echo = FALSE}
+example_ordered_factor
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Mathematical Functions**
+
+### **Basic Arithmatic**  
+
+```{r}
+#Addition
+1+2
+```
+
+```{r}
+#Subtraction
+4-2
+```
+
+```{r}
+#Multiplication
+5*6
+```
+
+```{r}
+#Division
+9/3
+```
+  
+```{r}
+# Exponents
+2^3
+```
+  
+```{r}
+#Remainder
+7%%3
+```
+
+* `x%%2=0` is a quick reference for even  
+* `x%%2=1` is a quick reference for odd
+
+****
+
+### **Rounding Decimals**
+
+```{r}
+round(10.567)
+round(10.567, 2)
+```
+
+****
+
+### **Maximum and Minimum**
+
+```{r}
+eg_list <- c(1, 2, 3)
+
+max(eg_list)
+min(eg_list)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Vectors**
+
+(One dimensional array; all the same data type)
+
+***
+
+### **Creating**
+
+#### *- Basic Vector*
+```{r}
+eg_vector <- c(1, 2, 3)
+eg_vector
+```
+
+<br>
+
+#### *- Named Vector*
+```{r}
+names(eg_vector) <- c("item1", "item2", "item3")
+eg_vector
+```
+
+***
+
+### **Operations**
+
+#### *- Adding Vectors*
+
+*Within*
+```{r}
+sum(eg_vector)
+```
+
+*Between* 
+
+`c(1, 2, 3) + c(4, 5, 6)` = 
+
+`c((1 + 4), (2 + 5), (3 + 6))`  =
+
+`c(5, 7, 9)`  
+
+```{r}
+A_vector <- c(1, 2, 3)
+B_vector <- c(4, 5, 6)
+A_vector + B_vector
+```
+
+<br>
+
+#### *- Evaluating*
+
+*Testing*
+```{r}
+A_vector > 2
+```
+
+*Extracting True Values*
+```{r}
+A_vector[A_vector > 2]
+```
+
+***
+
+### **Indexing**
+
+#### *- Extract a specific item*
+
+```{r}
+eg_vector[1]
+```
+
+<br>
+
+#### *- Extract a set of specific items*
+
+```{r}
+eg_vector[c(1,3)]
+```
+
+<br>
+
+#### *- Extract a range of items*
+
+```{r}
+eg_vector[1:3]
+```
+
+<br>
+
+#### *- Extract a specific named item*
+
+```{r}
+eg_vector["item1"]
+```
+
+***
+
+### **Editing**
+
+```{r}
+eg_vector["item1"] <- 100
+
+eg_vector
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Lists**
+
+(One dimensional array; elements do not have to be related in any way)
+ 
+***
+
+### **Creating**
+
+#### *- Basic List*
+
+```{r}
+list(A_vector, B_vector)
+```
+
+<br>
+
+#### *- Named List*
+
+```{r}
+list("A" = A_vector,
+     "B" = B_vector)
+```
+
+```{r}
+eg_list <- list(A_vector, B_vector)
+names(eg_list) <- c("A", "B")
+
+eg_list
+```
+
+***
+
+### **Indexing**
+
+#### *- Extract specific item*
+
+```{r}
+eg_list[[1]]
+```
+
+<br>
+
+#### *- Extract specific item by name*
+
+```{r}
+eg_list[["A"]]
+```
+
+<br>
+
+#### *- Extract specific item by name*
+
+```{r}
+eg_list$A
+```
+
+<br>
+
+#### *- Extract specific item within a specific item*
+
+```{r}
+eg_list[[1]][1]
+```
+
+***
+
+### **Editing**
+
+#### *- Combining Lists*
+
+```{r}
+c(eg_list, eg_list)
+```
+
+```{r}
+list(eg_list, eg_list)
+```
+
+<br>
+
+#### *- Adding/Changing Items*
+
+```{r}
+eg_list[3] <- 100
+eg_list
+```
+
+***
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Matrices**
+
+(Two dimensional array; all the same data type)
+
+***
+
+### **Creating**
+
+#### *- Filling by Row*
+
+```{r}
+matrix(1:9,byrow=TRUE,nrow=3)
+```
+
+#### *- Filling by Column*
+```{r}
+matrix(1:9,byrow=FALSE,nrow=3)
+```
+
+<br>
+
+#### *- Naming*
+```{r}
+eg_matrix <- matrix(1:9,byrow=TRUE,nrow=3)
+
+rownames(eg_matrix) <- c("MA", "NY", "CO")
+colnames(eg_matrix) <- c("2010", "2011", "2013")
+
+eg_matrix
+```
+
+***
+
+### **Operations**
+
+#### *- Row Sums*
+
+```{r}
+rowSums(eg_matrix)
+```
+
+<br>
+
+#### *- Column Sums*
+
+```{r}
+colSums(eg_matrix)
+```
+
+<br>
+
+#### *- Adding Matrices*
+```{r}
+matrix_a <- matrix(1:9,byrow=TRUE,nrow=3)
+
+matrix_b <- matrix(1:9,byrow=FALSE,nrow=3)
+
+matrix_a + matrix_b
+```
+
+***
+
+### **Indexing**
+
+#### *- Extract a specific item*
+
+```{r}
+eg_matrix[1,2]
+```
+
+<br>
+
+#### *- Extract a subset*
+
+```{r}
+eg_matrix[1:2,2:3]
+```
+
+<br>
+
+#### *- Extract a specific subset*
+
+```{r}
+eg_matrix[c(1,3),2:3]
+```
+
+<br>
+
+#### *- Extract a row and all columns*
+
+```{r}
+eg_matrix[1,]
+```
+
+<br>
+
+#### *- Extract a column and all rows*
+
+```{r}
+eg_matrix[,1]
+```
+
+***
+
+### **Editing**
+
+#### *- Adding a column*
+
+```{r}
+cbind(eg_matrix, eg_vector)
+```
+
+<br>
+
+#### *- Adding a row*
+
+```{r}
+rbind(eg_matrix, eg_vector)
+```
+
+<br>
+
+#### *- Replacing a specific value*
+
+```{r}
+eg_matrix[1,2] <- 100
+eg_matrix
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Dataframes**
+
+(Two dimensional array; all the same data type within a column, but different columns can have different data types)
+
+***
+
+### **Creating**
+
+```{r}
+name <- c("Mercury", "Venus", "Earth", "Mars")
+type <- c("Terrestrial", "Terrestrial", "Terrestrial", "Terrestrial")
+diameter <- c(0.382, 0.949, 1, 0.532)
+rotation <- c(58.64, -243.02, 1, 1.03)
+rings <- c(FALSE, FALSE, FALSE, FALSE)
+
+planets_df <- data.frame(name, type, diameter, rotation, rings)
+
+planets_df
+```
+
+***
+
+### **Operations**
+
+#### *- Order Ascending*
+
+```{r}
+planets_df[order(planets_df$diameter),"name"]
+```
+
+#### *- Order Descending*
+
+```{r}
+planets_df[order(planets_df$diameter,decreasing=TRUE),"name"]
+```
+
+***
+
+### **Indexing**
+
+#### *- Extract a specific item*
+
+```{r}
+planets_df[2,1]
+```
+
+<br>
+
+#### *- Extract a subset*
+
+```{r}
+planets_df[2:3,1:2]
+```
+
+<br>
+
+#### *- Extract a specific subset*
+
+```{r}
+planets_df[c(1,3),1:2]
+```
+
+<br>
+
+#### *- Extract all rows of a column*
+
+```{r}
+planets_df[,1]
+```
+
+<br>
+
+#### *- Extract all columns of a row*
+
+```{r}
+planets_df[1,]
+```
+
+<br>
+
+#### *- Extract column by name*
+
+```{r}
+planets_df[,"diameter"]
+```
+
+<br>
+
+#### *- Extract column by name*
+
+```{r}
+planets_df$rings
+```
+
+<br>
+
+#### *- Extract based on values*
+
+```{r}
+planets_df[planets_df$rotation<0,]
+```
+
+***
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **If Statements**
+
+***
+
+### **Single If**
+
+```{r eval=FALSE}
+if (condition) {
+  expression
+}
+```
+
+****
+
+### **If/Else**
+
+```{r eval=FALSE}
+if (condition) {
+  expression_1
+} else {
+  expression_2
+}
+```
+
+****
+
+### **If and Multiple Elses**
+
+```{r eval=FALSE}
+if (condition_1) {
+  expression_1
+} else if (condition_2) {
+  expression_2
+} else {
+  expression_3
+}
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png) 
+
+# **Loops**
+
+***
+
+### **While**
+
+#### *- External Condition*
+
+```{r eval=FALSE}
+while (condition) {
+  expression
+}
+```
+
+<br>
+
+#### *- Indexed*
+
+```{r eval=FALSE}
+i <- 1
+while (i <= 10) {
+  expression
+  
+  i <- i + 1
+}
+```
+
+***
+
+### **For**
+
+#### *- Iterate over a list*
+
+```{r}
+fruit_list <- c("Apples", "Strawberries", "Bananas")
+
+for (item in fruit_list) {
+  print(str_c("I love ",item))
+}
+```
+
+<br>
+
+#### *- Apply a function over a list*
+
+```{r}
+number_list <- c(1,2,3)
+
+for (i in seq_along(number_list)) {
+  print(number_list[i] + 1)
+}
+```
+
+<br>
+
+#### *- Fill in a new list*
+
+```{r}
+dummy_list <- vector("double", length(number_list))
+
+for (i in seq_along(number_list)) {
+  dummy_list[[i]] <- number_list[i] + 1
+}
+
+dummy_list
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# **Functions**
+
+***
+
+### **Existing**
+
+```{r eval=FALSE}
+install.packages("package")
+library(package)
+update.packages()
+```
+
+* `abs()`: Calculate the absolute value.
+* `sum()`: Calculate the sum of all the values in a data structure.
+* `mean()`: Calculate the arithmetic mean.
+* `round()`: Round the values to 0 decimal places by default.  
+
+* `seq()`: Generate sequences, by specifying the from, to, and by arguments.
+* `rep()`: Replicate elements of vectors and lists.
+* `sort()`: Sort a vector in ascending order. Works on numerics, but also on character strings and logicals.
+* `rev()`: Reverse the elements in a data structures for which reversal is defined.
+* `str()`: Display the structure of any R object.
+* `append()`: Merge vectors or lists.
+* `is.*()`: Check for the class of an R object.
+* `as.*()`: Convert an R object from one class to another.
+* `unlist()`: Flatten (possibly embedded) lists to produce a vector.
+
+***
+
+### **Creating**
+
+#### *- Basic*
+
+```{r eval=FALSE}
+function_name <- function (argument_1, argument_2) {
+  expression
+}
+```
+
+<br>
+
+#### *- Default value for variable*
+
+```{r eval=FALSE}
+function_name <- function (argument_1, argument_2 = default_value) {
+  expression
+}
+```
+
+<br>
+
+#### *- Infinite variables*
+
+```{r eval=FALSE}
+function_name <- function(argument_1, ...) {
+  expression using argument_1 and any number of other arguments 
+}
+```
+
+<br>
+
+#### *- Adding an error message*
+
+```{r eval=FALSE}
+function_name <- function(argument) {
+  if (condition) {
+    stop("Error message", call. = FALSE)
+  }
+  expression 
+}
+```
+
+***
+
+### **Applying**
+
+* `lapply` returns a list
+* `sapply` tries to return a simplified list as a vector or matrix
+* `vapply` is like `sapply` but with the result type specified `data type(length)`
+
+```{r eval=FALSE}
+lapply(vector, existing_function)
+sapply(vector, existing_function)
+vapply(vector, existing_function, numeric(4))
+```
+
+<br>
+
+#### *- Additional arguments* 
+
+```{r eval=FALSE}
+lapply(vector, existing_function, other_arguments)
+```
+
+<br>
+
+#### *- New function*
+
+```{r eval=FALSE}
+lapply(vector, function(argument){new_function expression})
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png) 
+
+# **Regular Expressions**
+
+***
+
+### [**Test**](https://regexr.com/)
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/regex_test.jpg)
+
+***
+
+### **Apply**
+
+#### *- Search*
+
+* `grepl()` returns TRUE when a pattern is found in the corresponding character string.
+* `grep()` returns a vector of indices of the character strings that contains the pattern.
+
+```{r eval=FALSE}
+grep(regular_expression, search_location)
+```
+
+<br>
+
+#### *- Replace*
+
+* `sub()` replaces the first match
+* `gsub()` replaces all matches
+
+```{r eval=FALSE}
+gep(regular_expression, replace_value, search_location)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)

@@ -11,7 +11,9 @@ Feel free to use them and reach out with suggestions.
 
 <img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_r.png" width="500">
 
-[Basic R](r_basic.html)
+[Basic R](r_basic.html)  
+  
+[Dates: Lubridate](r_lubridate.html)
 
 [Census: Tidycensus](r_census.html)
 
