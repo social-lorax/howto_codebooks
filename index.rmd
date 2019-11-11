@@ -8,6 +8,11 @@ output: html_document
 These are the codebooks I have created while learning to code.  
 Feel free to use them and reach out with suggestions.
 
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/sql.png" width="500">
+  
+[SQL](sql.html)
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
 
 <img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_r.png" width="500">
 
@@ -22,3 +27,9 @@ Feel free to use them and reach out with suggestions.
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
 
 <img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_python.png" width="500">
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
+
+[XML](xml.html)  
+  
+[R Markdown](markdown.html)

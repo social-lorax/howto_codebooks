@@ -1,0 +1,103 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+```
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="200">
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+# **Start File**
+
+```
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+``{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
+``
+
+``{r echo=FALSE}
+library(tidyverse)
+``
+```
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+# **Images**
+
+### *Size* 
+
+```
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="10">
+```
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="10">
+
+<br>
+
+```
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="100">
+```
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="100">
+
+<br>
+
+```
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="1000">
+```
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="1000">
+
+****
+
+### *Position* 
+
+```
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="100">
+
+</div>
+```
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="100">
+
+</div>
+
+<br> 
+
+```
+<div align="right">
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="100">
+
+</div>
+```
+<div align="right">
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="100">
+
+</div>
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+[Tipsheet](https://github.com/social-lorax/howto_codebooks/blob/master/RMarkdown.pdf)
