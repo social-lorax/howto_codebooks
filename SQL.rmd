@@ -1,0 +1,336 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/sql.png)
+
+# **Connecting to Database**
+
+****
+
+### **Python**
+
+****
+
+### **R**
+
+```{r warning=FALSE}
+library(DBI)
+library(RMySQL)
+```
+
+```{r echo=FALSE, eval=FALSE}
+#Password = datacamp
+```
+
+<br>
+
+#### *- Create Connection*
+
+```{r}
+con <- dbConnect(
+  RMySQL::MySQL(),
+  host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+  dbname = "tweater",
+  user = "student",
+  port = 3306,
+  password = getPass::getPass("Database Password")
+)
+```
+
+<br>
+
+#### *- List Tables*
+
+```{r}
+dbListTables(con)
+```
+
+<br>
+
+#### *- Read in Table*
+```{r}
+# Read in table
+df <- dbReadTable(con,"users")
+
+head(df)
+```
+
+<br>
+
+#### *- Read in SQL Query*
+
+```{r}
+dbGetQuery(con,
+           "SELECT *
+           FROM comments
+           WHERE user_id = 1")
+```
+
+<br>
+
+```{r eval=FALSE}
+res <- dbSendQuery(con,
+                   "SELECT *
+                   FROM comments
+                   WHERE user_id = 1")
+
+dbFetch(res, n = 100)
+```
+
+<br>
+
+#### *- Disconnect*
+
+```{r eval=FALSE}
+# Disconnect
+dbDisconnect(con)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+# **Query Structure**
+
+****  
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/sql_order.png)
+
+### **Select**
+
+|Goal                     | Formula                       |Example                        |
+|-------------------------|-------------------------------|-------------------------------|
+|Select all data     |**SELECT** \* <br> **FROM** *table name*; |**SELECT** \* <br> **FROM** Persons; | 
+|Select specific data|**SELECT** *column names* <br> **FROM** *table name*; |**SELECT** LastName, FirstName <br> **FROM** Persons;|
+|Select distinct cases|**SELECT** **DISTINCT** *column names* <br> **FROM** *table name*;| **SELECT** **DISTINCT** LastName <br> **FROM** Persons|
+|Perform a function on the data before returning it: <br> - **AVG**() <br> - **MAX**() <br> - **MIN**() <br> - **SUM**()|**SELECT** **AggFunc**(*column name*) <br> **FROM** *table name*;|**SELECT** **AVG**(Age) <br> **FROM** Persons;|
+|Count rows <br> <br> <br> Count non-nulls <br> <br> <br> Count distinct values|**SELECT** **COUNT**() <br> **FROM** *table name*; <br> <br> **SELECT** **COUNT**(*column name*) <br> **FROM** *table name*; <br> <br> **SELECT** **COUNT**(**DISTINCT** *column name*) <br> **FROM** *table name*;|**SELECT** **COUNT**() <br> **FROM** Persons; <br> <br> **SELECT** **COUNT**(Email) <br> **FROM** Persons; <br> <br> **SELECT** **COUNT**(**DISTINCT** LastName) <br> **FROM** Persons;|
+|Select element of date |**SELECT** **TimeFunc**(*column name*) <br> **FROM** *table name*;|**SELECT** **MONTH**(Birthday) <br> **FROM** Persons;| 
+
+### **Where**
+
+|Goal                     | Formula                       |Example                        |
+|-------------------------|-------------------------------|-------------------------------|
+|Filter on single value <br> - **=** <br> - **<>** <br> - **>** <br> - **>=** <br> - **<** <br> - **<=**|**SELECT** \* <br> **FROM** *table name* <br> **WHERE** *expression*;|**SELECT** \* <br> **FROM** Persons <br> **WHERE** FirstName = 'Ryan'; <br> <br> **SELECT** \* <br> **FROM** Persons <br> **WHERE** FirstName = 'Ryan' **AND** LastName = 'Brenner'; <br> <br> **SELECT** \* <br> **FROM** Persons <br> **WHERE** FirstName = 'Bryan' **OR** FirstName = 'Brian'; <br> <br> **SELECT** \* <br> **FROM** Persons <br> **WHERE** (FirstName = 'Bryan' **OR** FirstName = 'Brian') **AND** LastName = 'Brenner';| 
+|Filter with an inclusive range|**SELECT** \* <br> **FROM** *table name* <br> **WHERE** *column name* **BETWEEN** *a* **AND** *b*|**SELECT** \* <br> **FROM** Persons <br> **WHERE** Age **BETWEEN** 18 **AND** 25;|
+|Filter with a set|**SELECT** \* <br> **FROM** *table name* <br> **WHERE** *column name* **IN** (*list*)|**SELECT** \* <br> **FROM** Persons <br> **WHERE** FirstName **IN**('John', 'Paul', 'Ringo', 'George');|
+|Search for a pattern <br> - Single wildcard = _ <br> - Unlimited wildcard = %|**SELECT** \* <br> **FROM** *table name* <br> **WHERE** *column name* **LIKE** *pattern*;|**SELECT** \* <br> **FROM** Persons <br> **WHERE** FirstName **LIKE** 'Br_an'; <br> <br> **SELECT** \* <br> **FROM** Persons <br> **WHERE** FirstName **LIKE** 'Kath%'; <br> <br> **SELECT** \* <br> **FROM** Persons <br> **WHERE** FirstName **LIKE** '%ael';|
+|!!!Avoid Case Errors!!!|**SELECT** \* <br> **FROM** *table name* <br> **WHERE** **LCASE** *column name* *expression*;|**SELECT** \* <br> **FROM** Persons <br> **WHERE** **LCASE** LastName = 'macdonald';|
+|Filter nulls|**SELECT** \* <br> **FROM** *table name* <br> **WHERE** *column name* **IS NULL**; <br> <br> **SELECT** \* <br> **FROM** *table name* <br> **WHERE** *column name* **IS NOT NULL**;|**SELECT** \* <br> **FROM** Persons <br> **WHERE** SurveyResponse **IS NULL**; <br> <br> **SELECT** \* <br> **FROM** Persons <br> **WHERE** Email **IS NOT NULL**;|
+
+### **Order**
+
+|Goal                     | Formula                       |Example                        |
+|-------------------------|-------------------------------|-------------------------------|
+|Order the result         |**SELECT** \* <br> **FROM** *table name* <br> **ORDER BY** *column name*; |**SELECT** \* <br> **FROM** Persons <br> **ORDER BY** LastName;|
+|Ascending and descending |**SELECT** \* <br> **FROM** *table name* <br> **ORDER BY** *column name* **ASC**; <br> <br> **SELECT** \* <br> **FROM** *table name* <br> **ORDER BY** *column name* **DESC**;|**SELECT** \* <br> **FROM** Persons <br> **ORDER BY** Year **DESC**; <br> <br> **SELECT** \* <br> **FROM** Persons <br> **ORDER BY** LastName **DESC**, FirstName **ASC**;|
+
+### **Group**
+
+|Goal                     | Formula                       |Example                        |
+|-------------------------|-------------------------------|-------------------------------|
+|Aggregate by group       |**SELECT** **AggFunc**(*column name 1*), *column name 2* <br> **FROM** *table name* <br> **GROUP BY** *column name 2*;|**SELECT** **AVG**(Age), Team <br> **FROM** Persons <br> **GROUP BY** Team;|
+|Filter after grouping    |**SELECT** **AggFunc**(*column name 1*), *column name 2* <br> **FROM** *table name* <br> **GROUP BY** *column name 2* <br> **HAVING** *expression*;|**SELECT** **AVG**(Age), Team <br> **FROM** Persons <br> **GROUP BY** Team <br> **HAVING** **AVG**(Age) < 30;|
+
+### **Naming**
+
+|Goal                     | Formula                       |Example                        |
+|-------------------------|-------------------------------|-------------------------------|
+|Create a column alias    |**SELECT** *column name* **AS** *alias* <br> **FROM** *table name*;|**SELECT** LastName **AS** Family, FirstName **AS** Name <br> **FROM** Persons;|
+|Create a table alias     |**SELECT** \* <br> **FROM** *table name* **AS** *alias*;|**SELECT** \* <br> **FROM** Persons **AS** Members;|
+|Create masks             |**SELECT** \* <br> **CASE** <br> &nbsp; &nbsp; &nbsp; **WHEN** *condition 1* **THEN** *result 1* <br> &nbsp; &nbsp; &nbsp; **WHEN** *condition 2* **THEN** *result 2* <br> **ELSE** *result 3* <br> **END** <br> **AS** *alias* <br> **FROM** *table name*;|**SELECT** \* <br> **CASE** <br> &nbsp; &nbsp; &nbsp; **WHEN** Age < 18 **THEN** 'Child' <br> &nbsp; &nbsp; &nbsp; **WHEN** Age > 65 **THEN** 'Senior' <br> &nbsp; &nbsp; &nbsp; **ELSE** 'Adult' <br> **END** <br> **AS** AgeGroup <br> **FROM** Persons;
+
+### **Joins**
+
+|Goal                     | Formula                       |Example                        |
+|-------------------------|-------------------------------|-------------------------------|
+|![](https://i.stack.imgur.com/iJUMl.png)|**SELECT** a.*column1*, b.*column2* <br> **FROM** *table1* **AS** a <br> \_ **JOIN** *table2* as b <br> **ON** a.*key* = b.*key*;|**SELECT** a.FirstName, a.LastName, b.PhoneNumber <br> **FROM** Persons **AS** a <br> **LEFT JOIN** Phonebook as b <br> **ON** a.LastName = b.Family; <br> <br> **SELECT** a.FirstName, a.LastName, b.PhoneNumber, c.FamilySize <br> **FROM** Persons **AS** a <br> **INNER JOIN** Phonebook as b <br> **ON** a.LastName = b.Family <br> **RIGHT JOIN** Census **AS** c <br> **ON** b.Address = c.Street; <br> <br> |
+|Using multiple keys|**SELECT** a.*column1*, b.*column2* <br> **FROM** *table1* **AS** a <br> \_ **JOIN** *table2* as b <br> **ON** a.*key1* = b.*key1* **AND** a.*key2* = b.*key2*;|**SELECT** a.FirstName, a.LastName, b.PhoneNumber <br> **FROM** Persons **AS** a <br> **LEFT JOIN** Phonebook as b <br> **ON** a.LastName = b.Surname **AND** a.FirstName = b.Name;|
+|Using the same key name|**SELECT** a.*column1*, b.*column2* <br> **FROM** *table1* **AS** a <br> \_ **JOIN** *table2* as b <br> **USING** (*key*);|**SELECT** a.FirstName, a.LastName, b.PhoneNumber <br> **FROM** Persons **AS** a <br> **LEFT JOIN** Phonebook as b <br> **USING** (LastName);| 
+
+### **Unions**
+
+|Goal                     | Formula                       |Example                        |
+|-------------------------|-------------------------------|-------------------------------|
+|Stack frames with the same columns
+<a href="https://ibb.co/YPGLnkz"><img src="https://i.ibb.co/DznRcCx/Untitled.png" alt="Untitled" border="0" /></a>| *SQL query 1* **SetFunc** *SQL query 2*;|**SELECT** **DISTINCT** LastName <br> **FROM** Members2017 <br> **UNION** <br> **SELECT** **DISTINCT** LastName <br> **FROM** Members2018; <br> <br> **SELECT** **DISTINCT** LastName <br> **FROM** Members2017 <br> **INTERSECT** <br> **SELECT** **DISTINCT** LastName <br> **FROM** Members2018;|
+
+### **Subqueries**
+
+*Inside a WHERE clause* 
+
+```
+SELECT item, stat  
+FROM data  
+WHERE stat <  
+  (SELECT AVG(stat)  
+   FROM data);
+```
+
+```{r eval=FALSE}
+#Games with more than average goals
+
+query <- "
+
+SELECT date, home_goal, away_goal
+FROM matches_2013_2014
+WHERE (home_goal + away_goal) >
+  (SELECT AVG(home_goal + away_goal)
+   FROM matches_2013_2014);
+           
+"
+
+dbGetQuery(con, query)
+```
+
+|date       | home_goal |away_goal |
+|-----------|-----------|----------|
+|2013-12-14 |6          |3         |
+|2014-03-22 |3          |6         |
+|2013-10-30 |7          |3         |
+
+<br>
+
+```
+SELECT *  
+FROM dataset1  
+WHERE item IN  
+  (SELECT item  
+   FROM dataset2);
+```
+
+```{r eval=FALSE}
+#Teams without a home game 
+
+query <- "
+
+SELECT team_long_name, team_short_name
+FROM teams
+WHERE team_id NOT IN
+  (SELECT DISTINCT hometeam_id
+   FROM matches_2013_2014);
+           
+"
+
+dbGetQuery(con, query)
+```
+
+|team_long_name |team_short_name |
+|---------------|----------------|
+|FCV Dender EH  |DEN             |
+|KSV Roeselare  |ROS             |
+|Tubize         |TUB             |
+
+<br> 
+
+*Inside a FROM Clause*
+
+```
+SELECT *
+FROM (SELECT key, a.col1, b.col2, derivedcol
+      FROM dataset1 AS a
+      INNER JOIN dataset2 AS b
+      USING (key))
+WHERE derivedcol > value
+```
+
+```{r eval=FALSE}
+#Countries with high-scoring matches
+
+query <- "
+
+SELECT c.name AS country_name, COUNT(m.id) AS matches
+FROM country as c
+INNER JOIN (SELECT country_id, id
+            FROM matches_2013_2014
+            WHERE (home_goal + away_goal) >= 10) AS m
+ON c.id = m.country_id
+GROUP BY country_name;
+"
+
+dbGetQuery(con, query)
+```
+
+|country_name   |matches         |
+|---------------|----------------|
+|Spain          |4               |
+|England        |3               |
+|Germany        |1               |
+
+<br> 
+
+*Inside a SELECT Clause*
+
+```
+SELECT item,
+  (SELECT derviedcol
+   FROM dataset2) AS derivedcol 
+FROM dataset1;
+```
+
+```{r eval=FALSE}
+#Comparing team average to overall average 
+
+query <- "
+
+SELECT c.name AS country_name, 
+       ROUND(AVG(m.home_goal + m.away_goal), 2) AS avg_goals,
+       ROUND(AVG(m.home_goal + m.away_goal), 2) - (SELECT AVG(home_goal + away_goal
+                                                   FROM matches_2013_2014)) AS diff
+FROM country as c
+INNER JOIN matches_2013_2014 AS m
+ON c.id = m.country_id
+GROUP BY country_name;
+           
+"
+
+dbGetQuery(con, query)
+```
+
+|country_name   |avg_goals |diff |
+|---------------|----------|-----|
+|Switzerland    |2.89      |0.12 |
+|Poland         |2.64      |-0.13|
+|Netherlands    |3.20      |0.43 |
+
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+# **Advanced Querying**
+
+****
+
+### **Count a Case When**
+
+```{r}
+query <- "
+
+SELECT user_id,
+  COUNT(CASE WHEN message LIKE '%!%' THEN 'Excited Tweet' END) as 'Excited',
+  COUNT(CASE WHEN message LIKE '%?%' THEN 'Question' END) as 'Question'
+FROM comments
+GROUP BY user_id;
+           
+"
+
+dbGetQuery(con, query)
+```
+
+```{r message=FALSE, warning=FALSE}
+query <- "
+
+SELECT tweat_id,
+  ROUND(AVG(CASE WHEN message LIKE '%!%' THEN 1 ELSE 0 END), 2) as 'Excited',
+  ROUND(AVG(CASE WHEN message LIKE '%?%' THEN 1 ELSE 0 END), 2) as 'Question'
+FROM comments
+GROUP BY tweat_id;
+"
+
+dbGetQuery(con, query)
+```
