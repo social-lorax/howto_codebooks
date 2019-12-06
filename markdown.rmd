@@ -8,6 +8,11 @@ output:
     number_sections: false
     df_print: kable
 ---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
 ```{r include=FALSE}
 knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
 ```
@@ -20,7 +25,9 @@ library(tidyverse)
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
 
-# **Start File**
+# $\first{Start File}$
+
+***
 
 ```
 ---
@@ -33,19 +40,84 @@ output:
     number_sections: false
     df_print: kable
 ---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
 ``{r include=FALSE}
 knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
 ``
+```
 
+If using R: 
+
+```
 ``{r echo=FALSE}
 library(tidyverse)
 ``
 ```
+
+If using Python: 
+
+```
+``{r include=FALSE}
+library(reticulate)
+``
+```
+
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
 
-# **Images**
+# $\first{Headings}$
 
-### *Size* 
+***
+
+```
+# $\first{Text}$
+
+***
+
+Text
+
+### $\second{Text}$
+
+Text
+
+*** 
+
+### $\second{Text}$
+
+Text
+
+<br> 
+
+#### $\third{- Error analysis}$ 
+
+Text
+
+<br>
+
+#### $\third{- Error analysis}$ 
+
+Text
+
+![](underline.link)
+
+# $\first{Text}$
+
+***
+
+Text
+
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+# $\first{Images}$
+
+***
+
+### $\second{Size}$
 
 ```
 <img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/markdown_logo.png" width="10">
@@ -68,7 +140,7 @@ library(tidyverse)
 
 ****
 
-### *Position* 
+### $\second{Position}$
 
 ```
 <div align="center">
