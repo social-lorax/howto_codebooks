@@ -30,6 +30,11 @@ Feel free to use them and reach out with suggestions.
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
 
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_kaggle.png" width="500">
+
+[Model Evaluation](K.1_Model_Eval_.html)
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
 [XML](xml.html)  
   
 [R Markdown](markdown.html)

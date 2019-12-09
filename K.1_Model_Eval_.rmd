@@ -1,0 +1,459 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
+```
+
+```{r setup, include=FALSE}
+library(reticulate)
+library(tidyverse)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/kaggle_eval.png)
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+# $\first{Intro}$
+
+***
+
+So you know how to build several types of machine learning models… but how do you know which one is going to work best for a specific problem? Learning how to evaluate machine learning models is an important part of the data science workflow. You’ll need it for everything from picking your final submissions for a Kaggle competition to choosing which model your team should put into production.
+
+We know how important model evaluation is, so we’ve put together a three-day workshop to walk you through the model evaluation process from start to finish. We’ll go beyond just optimization metrics, though, and talk about factors for model selection relevant to working data scientists.
+
+Here’s a quick breakdown of what we’ll go over:
+
+* Day 1: Figure out the best way to to measure models
+* Day 2: Train multiple autoML models
+* Day 3: Evaluate your shiny new models
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+# $\first{What Matters}$
+
+***
+
+[Livestream](https://www.youtube.com/watch?v=7RdKnACscjA&feature=youtu.be&list=PLqFaTIg4myu-HA1VGJi_7IGFkKRoZeOFt)
+
+During a Kaggle competition, we evaluate your models in a specific way: the predictions you make are compared to a ground truth using a specific metric. (Which metric depends on the competition and the question we’re asking.) Whichever model achieves the highest score on the final validation dataset wins. Pretty simple right?
+
+If you’re working on building machine learning models in a work setting, however, things may be a bit more complicated. Achieving a good score on your metric of choice is important, of course, but it’s only part of the problem. When picking the best model to use for a particular problem, some of the things you need to consider include:
+
+* Your time
+* Computation time and cost for training and inference
+* Model performance (and not just your loss function!)
+
+Let’s talk about each of these points in turn and then how to balance them when picking what type of model to work on.
+
+<br>
+
+### $\second{Time}$
+
+It’s easy to forget that your time is a limited and valuable resource. It can be hard to predict how long a data science project will take, but here are some things that can take more time than you might anticipate.
+
+* **Scoping projects.** What’s feasible? What do you currently have enough data to be able to do? What would be the most valuable type of model? What timelines are you working with? Figuring out the answers to these questions, and making sure that your stakeholders agree, can be extremely time consuming. (If you're lucky enough to be working with a project or product manager they should be able to help you here.)
+* **Setting up your environment and installing dependencies.** True story: one year in grad school I ended up spending an entire summer wrestling with different audio codecs and their dependencies! It can be easy to underestimate how much time it will take to get a new modelling framework and all its dependencies set up. Especially for very new frameworks, you may end up finding brand new problems or bugs that you’ll need to solve before you can even start training your model.
+* **Data collection and preparation.** If you’re lucky, the data you need will already exist. If you’re really lucky it will already be in a form that you can use for modelling. Probably at least one of these things will not be true and correcting it will inevitably end up taking far, far longer than you think it should. According to the 2018 Kaggle machine learning and data science survey, data scientists spend over half of their time gathering, cleaning, and visualizing data.
+* **Communicating with stakeholders.** If you build a model that no one ever uses, what’s the point? 🤷 Working with stakeholders (i.e. people who have an interest in your work) is really, really important to make sure that 1) you’re building a model that addresses a real need, 2) your stakeholders understand the strengths and limitations of your model and also machine learning in general, and 3) your model actually gets used.
+
+With these things in mind, here are some tips you can use to reduce the amount of time it takes you to get your model up and training:
+
+* It’s often a good idea to start with an established, older model family and implementation. There will likely be more example code for you to work from and, hopefully, fewer bugs. This is especially true if you already have it installed correctly to train a model with whatever compute you’re using.
+* If you can, try to find a container (like a Docker) that has all the dependencies with the correct versions already set up for the packages you want to use. This will help you save on set up time.
+* For data cleaning, before you start working spend some time writing out what you need your data to look like before it goes in the model. Then list out all the steps you need to go through to get your data to that form. This will keep you from too sidetracked during data cleaning and give you a nice checklist to work through and track your progress on.
+* If your data is tabular and in a SQL database, do as much of your data cleaning as possible in SQL. A well written SQL query is generally much faster than running the equivalent data manipulations in Python or R.
+
+***
+
+### $\second{Computation}$
+
+If you’ve trained larger models before, this a limitation you’re very familiar with. The more trainable parameters a model has and the more data you’re using to train it, the longer it will take. And, computing time costs money (either in electricity if you’re working on your own machines or being billed for the time if you’re using somebody else’s). The initial training time isn’t the only factor to consider, however. Here are some other things you might not have considered:
+
+* **How long will it take to update your model?** Depending on your specific project, you may need to regularly update your model or retrain a new one from scratch. Some models, like neural networks, can generally be updated. For other models, especially random forests, it’s often easiest to retrain from scratch again. If you’ll need to retrain your model often you might consider a model that will be faster to retrain.
+* **How long does it take your model to make predictions?** This is often called “inference time” and it’s really easy to forget to check in the excitement of training models! If you’re model is very accurate but so slow that everyone who tries to use it quits before they get their results back it’s probably not actually a very good model.
+
+Depending on your specific problem, you’ll have to choose how you want to balance the time it takes to train your model, update your trained model, and use your model to make predictions.
+
+***
+
+### $\second{Performance}$
+
+The most common way to measure a given model is it’s loss metric. (I personally generally go with cross entropy for classification and, as long as I care about outliers, mean squared error for regression.) However, while these metrics are very useful for training they can pretty easily hide important differences between individual models.
+
+<br>
+
+#### $\third{- Error analysis}$ 
+
+This is where error analysis comes into play. In machine learning, people generally use “error analysis” to mean looking at how many and what sorts of errors a model made. This can be helpful during model training and tuning to help you identify places where your model can be improved, usually through additional feature engineering or data preprocessing.
+
+Including a discussion of error analysis with your final model can also help build trust.
+
+> All machine learning models make errors. It’s important to be able to clearly communicate the types of errors your model is likely to make and consider that when selecting which model to implement.
+
+For this workshop, we’ll be looking at multi-class classification problems and using confusion matrices to quickly summarize errors.
+
+<br>
+
+#### $\third{- Interpretability}$ 
+
+Another important thing to consider when evaluating model performance is interpretability. Specifically, why did a given model output a specific decision for a specific class? When you’re working with stakeholders who have a lot of knowledge about the data you’re working with, being able to offer an answer to this question can help build trust in your model.
+
+For this particular workshop, we’ll be using counterfactuals as a way to interpret model decisions. Counterfactuals let you ask “what feature would I need to change and in what way in order to get a different output?” or, in the easier-to-compute case, “how would my model output change if I changed a single feature in a specific way?”.
+
+> Counterfactuals have two main advantages: you can use them for any class of model and it’s easy for someone without much of a machine learning background to understand. Which is important; not everyone on your team is going to have--or need--a deep background in machine learning.
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+# $\first{Training}$
+
+***
+
+[Livestream](https://www.youtube.com/watch?v=crXNFxMg5R4&list=PLqFaTIg4myu-HA1VGJi_7IGFkKRoZeOFt&index=2)
+
+For today's exercise, we're going to be working on classifying roles into job titles based on information about the role. The data will be from the 2018 and 2019 Kaggle data science survey.
+
+I've already done some data cleaning but if you'd like to do your own or do some additional feature engineering, feel free!
+
+Today we'll be building four different models using four different libraries, including some automated machine learning libraries.
+
+> Automated machine learning (or AutoML for short) is the task of removing human labor from the process of training machine learning models. Currently most AutoML research is focused on automating model selection and hyperparameter tuning
+
+The libraries we'll be using are:
+
+* [XGBoost](https://xgboost.readthedocs.io/en/latest/) (not automated machine learning: we'll be using this as a baseline)
+* [TPOT](https://epistasislab.github.io/tpot/), an open source automated machine learning library developed at the University of Pennsylvania
+* [H20.ai AutoML](http://docs.h2o.ai/h2o/latest-stable/h2o-docs/automl.html), a second open source automated machine learning library developed by researchers at H20.ai
+
+Let's get started!
+
+<br>
+
+### $\second{Data Prep}$
+
+```{python eval=FALSE}
+# import libraries
+import pandas as pd
+import random2
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import auc, accuracy_score, confusion_matrix
+from sklearn.preprocessing import LabelEncoder
+import category_encoders as ce
+
+# set a seed for reproducability
+random2.seed(42)
+
+# read in our data (https://www.kaggle.com/rebeccaturner/data-prep-for-job-title-classification)
+df_2018 = pd.read_csv("../data_jobs_info_2018.csv")
+
+# split into predictor & target variables
+X = df_2018.drop("job_title", axis=1)
+y = df_2018["job_title"]
+
+# split data into training and test set 
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.80, test_size=0.20)
+    
+# encode all features using ordinal encoding
+encoder_x = ce.OrdinalEncoder()
+X_encoded = encoder_x.fit_transform(X)
+
+# use a different encoder for each dataframe
+encoder_y = ce.OrdinalEncoder()
+y_encoded = encoder_y.fit_transform(y)
+
+# split encoded dataset
+X_train_encoded, X_test_encoded, y_train_encoded, y_test_encoded = train_test_split(X_encoded, y_encoded, train_size=0.80, test_size=0.20)
+```
+
+***
+
+### $\second{XGBoost Baseline}$
+
+```{python eval=FALSE}
+from xgboost import XGBClassifier
+
+# train XGBoost model with default parameters
+xgboost_model = XGBClassifier()
+xgboost_model.fit(X_train_encoded, y_train_encoded, verbose=False)
+
+# and save our model
+xgboost_model.save_model("../xgboost_baseline.model")
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/kag_eval1.png)
+
+***
+
+### $\second{TPOT}$
+
+```{python eval=FALSE}
+from tpot import TPOTClassifier
+
+# create & fit TPOT classifier with 
+tpot_model = TPOTClassifier(generations=8, population_size=20, verbosity=2, early_stop=2)
+tpot_model.fit(X_train_encoded, y_train_encoded)
+
+# save our model code
+tpot_model.export('tpot_pipeline.py')
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/kag_eval2.png)
+
+***
+
+### $\second{H20.ai AutoML}$
+
+```{python eval=FALSE}
+import h2o
+from h2o.automl import H2OAutoML
+
+# initilaize an H20 instance running locally
+h2o.init()
+
+# convert our data to h20Frame, an alternative to pandas datatables
+X_data = h2o.H2OFrame(X_train)
+y_data = h2o.H2OFrame(list(y_train))
+h2o_train_data = X_data.cbind(y_data)
+
+# Run AutoML for 20 base models (limited to 1 hour max runtime by default)
+h2o_model = H2OAutoML(max_models=20, seed=1)
+h2o_model.train(y="C1", training_frame=h2o_train_data)
+
+# View the top five models from the AutoML Leaderboard
+lb = h2o_model.leaderboard
+lb.head(rows=5)
+
+# save the model out
+h2o.save_model(h2o_model.leader)  # the leader model can be access with `h2o_model.leader`
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/kag_eval3.png)
+
+```{r echo = FALSE}
+tibble(
+  model_id = c("GBM_5_AutoML_20191205_060406", "XGBoost_1_AutoML_20191205_060406", "DeepLearning_grid_1_AutoML_20191205_060406_model_1", "GBM_1_AutoML_20191205_060406", "XGBoost_2_AutoML_20191205_060406"),
+  mean_per_class_error = c(0.680639, 0.681909, 0.682223, 0.682883, 0.683375),
+  logloss = c(1.46891	, 1.44647, 1.82753, 1.49003, 1.46133),
+  rmse = c(0.696247, 0.6996, 0.692592, 0.696902, 0.7057),
+  mse = c(0.48476, 0.489441, 0.479684, 0.485673, 0.498013)
+)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
+
+# $\first{Evaluating}$
+
+***
+
+Today we're going to be evaluating our models using several different metrics:
+
+1. How long did they take to train?
+2. How long does it take them to do batch inference on the held out data?
+3. What's their overall accuracy?
+4. How well do they perform across cases?
+5. How does their performance change if we change one of our input features?
+
+<br>
+
+### $\second{Loading Models}$
+
+Training models takes time. Sometimes it is better to run, save, and then load models at a later time. 
+
+```{python eval=FALSE}
+# load our saved XGBoost model
+xgboost_model = XGBClassifier()
+xgboost_model.load_model("../xgboost_baseline.model")
+xgboost_model._le = LabelEncoder().fit(training_data["job_title"])
+```
+
+<br> 
+
+```{python eval=FALSE}
+# run TPOT pipeline from tpot_pipeline.py
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline, make_union
+from tpot.builtins import StackingEstimator
+
+# NOTE: Make sure that the outcome column is labeled 'target' in the data file
+# tpot_data = pd.read_csv('PATH/TO/DATA/FILE', sep='COLUMN_SEPARATOR', dtype=np.float64)
+# features = tpot_data.drop('target', axis=1)
+# training_features, testing_features, training_target, testing_target = \
+#            train_test_split(features, tpot_data['target'], random_state=None)
+
+training_features, testing_features, training_target, testing_target = \        
+             train_test_split(X_encoded.values, y_encoded.values, random_state=None)
+
+# Average CV score on the training set was:0.4962519650431746
+# exported_pipeline = GradientBoostingClassifier(learning_rate=0.1, max_depth=3,   
+# max_features=0.35000000000000003, min_samples_leaf=11, min_samples_split=18, 
+# n_estimators=100, subsample=0.6500000000000001)
+
+exported_pipeline = GradientBoostingClassifier(learning_rate=0.1, max_depth=4, max_features=0.7500000000000001, min_samples_leaf=3, min_samples_split=2, n_estimators=100, subsample=0.45)
+
+# exported_pipeline.fit(training_features, training_target)
+
+exported_pipeline.fit(training_features, training_target)
+
+# results = exported_pipeline.predict(testing_features)
+```
+
+<br>
+
+```{python eval=FALSE}
+# initilaize H2o instance & load winning AutoML model
+h2o.init()
+h2o_model = h2o.load_model("../GBM_5_AutoML_20191205_060406")
+
+# convert data to h20Frame, an alternative to pandas datatables
+X_data = h2o.H2OFrame(X_test)
+y_data = h2o.H2OFrame(list(y_test))
+test_data_h2o = X_data.cbind(y_data)
+```
+
+***
+
+### $\second{Comparing Time}$
+
+First we'll think about how much time each of these models took.
+
+<br>
+
+#### $\third{- Training/Retraining Time}$ 
+
+For each of these four types of models, you'll probably have to retrain from scratch if you want to do something like add a new class. Here are the training times for each of the models we trained yesterday:
+
+```{r echo=FALSE}
+tibble(
+  Model = c("XGBoost", "TPOT", "H2o AutoML"),
+  `Time to Traim` = c("10.2 s ± 71.7 ms (using %%timeit)", "10 - 15 minutes (depending on run)", "36 minutes (HT Erin LeDell)")
+)
+```
+
+If what you really care about is training a model as fast a possible, the XGBoost baseline is probably your best bet.
+
+<br>
+
+#### $\third{- Inference Time}$ 
+
+```{python eval=FALSE}
+%%time
+
+xgb_predictions = xgboost_model.predict(X_test_encoded)
+```
+
+```{r echo=FALSE}
+print("CPU times: user 140 ms, sys: 4 ms, total: 144 ms")
+print("Wall time: 144 ms")
+```
+
+<br>
+
+```{python eval=FALSE}
+%%time
+
+tpot_predictions = exported_pipeline.predict(X_testing_encoded)
+```
+
+```{r echo=FALSE}
+print("CPU times: user 72 ms, sys: 0 ns, total: 72 ms")
+print("Wall time: 68.7 ms")
+```
+
+<br>
+
+```{python eval=FALSE}
+%%time
+
+h20_predictions = h2o_model.predict(test_data_h2o)
+```
+
+```{r echo=FALSE}
+print("CPU times: user 64 ms, sys: 12 ms, total: 76 ms")
+print("Wall time: 999 ms")
+```
+
+Based on just inference time, it looks the TPOT model is the fastest, followed by XGBoost and then H2O AutoML.
+
+***
+
+### $\second{Comparing Metrics}$
+
+Now that we've got our predictions, let's compare the performance of these models in terms of metrics. For this example, I'm just going to look at raw accuracy: what proportion of job titles did each model assign correctly? (If we were looking at probabilities per class instead of predicted category we could use log loss instead, but let's just use accuracy here for simplicity.)
+
+```{python eval=FALSE}
+# XGBoost accuracy
+print("XGBoost: " + str(accuracy_score(y_testing, xgb_predictions)))
+
+# TPOT Accuracy
+tpot_predictions_df = pd.DataFrame(data= {'job_title': tpot_predictions})
+tpot_predictions_unencoded = encoder_y.inverse_transform(tpot_predictions_df)
+print("TPOT: " + str(accuracy_score(y_testing, tpot_predictions_unencoded)))
+
+# H2O accuracy
+h20_predictions_df = h20_predictions.as_data_frame()
+print("H2O: " + str(accuracy_score(y_testing, h20_predictions_df.predict)))
+```
+
+```{r echo=FALSE}
+print("XGBoost: 0.0576992426974396")
+print("TPOT: 0.4915254237288136")
+print("H2O: 0.4987378290659935")
+```
+
+The most accurate model is H2O AutoML, followed by TPOT and then XGBoost (which has a much, much lower accuracy than either of the other two).
+
+***
+
+### $\second{Error Analysis}$
+
+For our error analysis, we're going to be using confusion matrices. The idea of a confusion matrix is that you have the actual labels on on axis, the predicted labels on the other axis and then the count or proportion of classifications in the matrix itself. They're mostly handy for quickly comparing performance across multiple classes, which is how we'll use them here.
+
+I've written a custom function, based on one from the SciKitLearn documentation, to plot confusion matrices for us and I'm going to use it to compare classifications from the four different models.
+
+```{python eval=FALSE}
+plot_confusion_matrix(xgb_predictions, testing_data["job_title"], 
+                      classes=unique_labels(testing_data["job_title"]),
+                      normalize=True,
+                      title='XGBoost Confusion Matrix')
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/kag_eval4.png)
+
+<br>
+
+```{python eval=FALSE}
+plot_confusion_matrix(tpot_predictions_unencoded, testing_data["job_title"], 
+                      classes=unique_labels(testing_data["job_title"]),
+                      normalize=True,
+                      title='TPOT Confusion Matrix')
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/kag_eval5.png)
+
+<br>
+
+```{python eval=FALSE}
+plot_confusion_matrix(h20_predictions_df["predict"], testing_data["job_title"], 
+                      classes=unique_labels(testing_data["job_title"]),
+                      normalize=True,
+                      title='H2O AutoML Confusion Matrix')
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/kag_eval6.png)
+
+Looking at these confusion matrices, a few things jump out at me. First, some classes seem to be more difficult than others, particularly "Consultant" and "Data Engineer". Second, there's a lot of variation between models in how well they're handling specific classes. For example, the H2O model is more accurate than the TPOT model at identifying "Data Analyst" roles but less accurate at identifying "Business Analyst" roles. If one of those classes is more important to me, that's probably something I should consider when picking a model.
