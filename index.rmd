@@ -20,6 +20,8 @@ Feel free to use them and reach out with suggestions.
   
 [Dates: Lubridate](r_lubridate.html)
 
+[Visualization: Ggplot and Patchwork](r_visualization.html)
+
 [Census: Tidycensus](r_census.html)
 
 \newline
