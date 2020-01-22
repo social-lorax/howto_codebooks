@@ -1,6 +1,7 @@
 ---
 output: 
   html_document:
+    theme: flatly
     highlight: tango
     toc: true
     toc_float: true
@@ -9,83 +10,66 @@ output:
     df_print: kable
 ---
 
-```{r echo=FALSE, message=FALSE}
-library(tidyverse)
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
 ```
 
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/r_lubridate.png)
+```{r echo=FALSE}
+library(tidyverse)
+```
+  
+<center>  
+![Lubridate_Logo](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/r_lubridate.png)  
+</center>
 
-```{r warning=FALSE, message=FALSE}
+```{r}
 library(lubridate)
 ```
 
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)  
 
 # **DateTimes**
-
 ***
-
-A **date-time** is a point on the timeline stored as the number of sections since 1970-01-01 00:00:00 UTC  
-
+A **date-time** is a point on the timeline stored as the number of sections since `1970-01-01 00:00:00 UTC`  
 ```{r}
-as_datetime(1511870400)
+as_datetime(1511870400) 
 ```
-
 <br>
-
-A **date** is a point on the timeline stored as the number of days since 1970-01-01
-
+A **date** is a point on the timeline stored as the number of days since `1970-01-01`  
 ```{r}
 as_date(17498)
 ```
-
 <br>
-
-A **time** is a point on the timeline stored as the number of seconds since 00:00:00
-
+A **time** is a point on the timeline stored as the number of seconds since `00:00:00`  
 ```{r}
 hms::as.hms(85)
 ```
-
 ****
-
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)  
 
 # **Creating**
-
 ****
+### *Setting Current*  
 
-### **Now**
-
-#### *-System*
-
+Using the base `Sys`
 ```{r}
 Sys.time()
 ```
-
-<br>
-
 ```{r}
 Sys.Date()
 ```
-
 <br>
-
-#### *-Lubridate*
-
+Using `lubridate`
 ```{r}
 now()
 ```
-
-<br>
-
 ```{r}
 today()
 ```
+****  
 
-****
+### *Parsing*  
 
-### **Parsing**
 
 Just specify the order or the components in the function. For example, `08/07/06` could be: 
 
