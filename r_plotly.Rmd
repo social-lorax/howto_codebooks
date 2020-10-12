@@ -1,0 +1,645 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+library(gapminder)
+
+data_07 <- gapminder %>% 
+  filter(year == 2007) %>% 
+  mutate(gdp = gdpPercap * pop)
+
+data_full <- gapminder
+
+data_multi <- gapminder %>% 
+  group_by(year) %>% 
+  summarize(mean_lifeExp = mean(lifeExp, na.rm = TRUE),
+            min_lifeExp = min(lifeExp, na.rm = TRUE),
+            max_lifeExp = max(lifeExp, na.rm = TRUE),
+            sd_lifeExp = sd(lifeExp, na.rm = TRUE)) %>% 
+  ungroup()
+
+data_means <- gapminder %>% 
+  group_by(year) %>% 
+  summarize(mean_lifeExp = mean(lifeExp, na.rm = TRUE),
+            sd_lifeExp = sd(lifeExp, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(low = mean_lifeExp - sd_lifeExp,
+         high = mean_lifeExp + sd_lifeExp)
+
+data_means_cont <- gapminder %>% 
+  group_by(continent, year) %>% 
+  summarize(lifeExp = mean(lifeExp, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  filter(year %in% c("1952", "1972", "1992")) %>% 
+  spread(year, lifeExp) 
+
+data_pop <- gapminder %>% 
+  group_by(continent, year) %>% 
+  summarize(population = sum(as.double(pop), na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  spread(continent, population)
+```
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r_plotly.png?raw=true)
+
+```{r}
+library(plotly)
+```
+
+# $\first{Basic Charts}$
+
+***
+
+### $\second{Scatter Plots}$
+
+#### $\third{- Basic}$ 
+
+```{r}
+colors <- c("firebrick", "darkorange", "forestgreen",
+            "royalblue", "darkorchid")
+
+fig <- plot_ly(data = data_07,
+               x = ~gdpPercap)
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "markers",
+            y = ~lifeExp,
+            color = ~continent,
+            colors = colors,
+            marker = list(size = 10,
+                          opacity = 0.8,
+                          line = list(color = "black",
+                                      width = 1)),
+            text = ~paste("Country: ", country, 
+                          "\nContinent:", continent,
+                          "\nLife Expectancy:", lifeExp,
+                          "\nGDP Per Capita:", scales::dollar(gdpPercap)),
+            hoverinfo = "text")
+
+fig <- fig %>% 
+  layout(title = "Relationship Between Economic Development\nand Life Exepctancy (2007)",
+         yaxis = list(title = "Life Exepctancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "GDP Per Capita (USD)",
+                      zeroline = FALSE,
+                      showline = TRUE))
+
+fig
+```
+
+***
+
+### $\second{Line Graphs}$
+
+#### $\third{- Basic}$ 
+
+```{r}
+fig <- plot_ly(data = data_multi,
+               x = ~year)
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "lines",
+            y = ~mean_lifeExp,
+            name = "Mean",
+            line = list(color = "rgba(51, 0, 51, .8)",
+                        width = 2),
+            text = ~paste("Mean: ", round(mean_lifeExp, 1)),
+            hoverinfo = "text")
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "lines",
+            y = ~max_lifeExp,
+            name = "Maximum",
+            line = list(color = "rgba(0, 0, 51, .8)",
+                        width = 2,
+                        dash = "dash"),
+            text = ~paste("Maximum: ", round(max_lifeExp, 1)),
+            hoverinfo = "text")
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "lines+markers",
+            y = ~min_lifeExp,
+            name = "Minimum",
+            line = list(color = "rgba(0, 153, 76, .6)",
+                        width = 2),
+            marker = list(size = 10,
+                          color = "rgba(0, 153, 76, .6)",
+                          line = list(color = "rgba(0, 102, 0, .8)",
+                                      width = 1)),
+            text = ~paste("Minimum: ", round(min_lifeExp, 1)),
+            hoverinfo = "text")
+            
+
+fig <- fig %>% 
+  layout(title = "Life Expectancy Over Time",
+         yaxis = list(title = "Life Exepctancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         hovermode = "x unified")
+
+fig
+```
+
+<br> 
+
+#### $\third{- Area}$ 
+
+```{r}
+fig <- plot_ly(data = data_means,
+               x = ~year)
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "lines",
+            y = ~mean_lifeExp + sd_lifeExp,
+            line = list(color = 'transparent'),
+            showlegend = FALSE,
+            hoverinfo = "skip")
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "lines",
+            y = ~mean_lifeExp - sd_lifeExp,
+            fill = 'tonexty', 
+            fillcolor = 'rgba(0, 100, 80, 0.2)', 
+            line = list(color = 'transparent'),
+            showlegend = FALSE,
+            hoverinfo = "skip")
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "lines", 
+            y = ~mean_lifeExp,
+            line = list(color='rgb(0, 100, 80)'),
+            name = "Average") 
+
+
+fig <- fig %>% 
+  layout(title = "Life Expectancy Over Time",
+         yaxis = list(title = "Life Exepctancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "",
+                      zeroline = FALSE,
+                      showline = TRUE))
+
+fig
+```
+
+***
+
+### $\second{Bar Graphs}$
+
+#### $\third{- Basic}$ 
+
+```{r}
+fig <- plot_ly(data = data_means,
+               type = "bar",
+               x = ~year,
+               y = ~mean_lifeExp,
+               text = ~paste("The mean worldwide life expectancy in", year, 
+                             "was", round(mean_lifeExp, 2), "years"), 
+               marker = list(color = "firebrick",
+                             opacity = 0.8,
+                             line = list(color = "black", width = 1)))
+
+fig <- fig %>% 
+  layout(title = "Life Expectancy Over Time",
+         yaxis = list(title = "Life Exepctancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "Year",
+                      zeroline = FALSE,
+                      showline = TRUE))
+
+fig
+```
+
+<br> 
+
+#### $\third{- Grouped}$ 
+
+```{r}
+fig <- plot_ly(data = data_means_cont,
+               type = "bar",
+               x = ~continent,
+               y = ~`1952`,
+               name = "1952 Avg",
+               text = ~paste("In 1952 the life expectancy in", continent, 
+                             "was", round(`1952`, 2), "years"), 
+               marker = list(color = "firebrick",
+                             opacity = 0.8,
+                             line = list(color = "black", width = 1)))
+
+fig <- fig %>% 
+  add_trace(y = ~`1972`,
+            name = "1972 Avg",
+            text = ~paste("In 1972 the life expectancy in", continent, 
+                          "was", round(`1972`, 2), "years"), 
+            marker = list(color = "forestgreen"))
+
+fig <- fig %>% 
+  add_trace(y = ~`1992`,
+            name = "1992 Avg",
+            text = ~paste("In 1992 the life expectancy in", continent, 
+                          "was", round(`1992`, 2), "years"), 
+            marker = list(color = "royalblue"))
+
+fig <- fig %>% 
+  layout(title = "Life Expectancy Over Time",
+         yaxis = list(title = "Life Exepctancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "",
+                      zeroline = FALSE,
+                      showline = TRUE))
+
+fig
+```
+
+<br> 
+
+#### $\third{- Stacked}$ 
+
+```{r}
+fig <- plot_ly(data = data_pop,
+               type = "bar",
+               x = ~year,
+               y = ~Asia,
+               name = "Asia",
+               text = ~paste("Continent: Asia",
+                             "\nPopulation: ", scales::comma(Asia)), 
+               marker = list(color = 'rgba(204,0,0,0.6)',
+                             line = list(color = 'rgb(204,0,0)', width = 1.5)))
+
+fig <- fig %>% 
+  add_trace(y = ~Africa,
+            name = "Africa",
+            text = ~paste("Continent: Africa",
+                          "\nPopulation: ", scales::comma(Africa)), 
+            marker = list(color = 'rgba(255,128,0,0.6)',
+                          line = list(color = 'rgb(204,128,0)', width = 1.5)))
+
+fig <- fig %>% 
+  add_trace(y = ~Americas,
+            name = "Americas",
+            text = ~paste("Continent: Americas",
+                          "\nPopulation: ", scales::comma(Americas)), 
+               marker = list(color = 'rgba(0,102,0,0.6)',
+                             line = list(color = 'rgb(0,102,0)', width = 1.5)))
+
+fig <- fig %>% 
+  add_trace(y = ~Europe,
+            name = "Europe",
+            text = ~paste("Continent: Europe",
+                          "\nPopulation: ", scales::comma(Europe)), 
+            marker = list(color = 'rgba(0,51,102,0.6)',
+                          line = list(color = 'rgb(0,51,102)', width = 1.5)))
+
+fig <- fig %>% 
+  add_trace(y = ~Oceania,
+            name = "Oceania",
+            text = ~paste("Continent: Oceania",
+                          "\nPopulation: ", scales::comma(Oceania)), 
+               marker = list(color = 'rgba(51,0,102,0.6)',
+                             line = list(color = 'rgb(51,0,102)', width = 1.5)))
+
+fig <- fig %>% 
+  layout(title = "Population Over Time",
+         yaxis = list(title = "Population",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "Year",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         barmode = "stack")
+
+fig
+```
+
+*** 
+
+### $\second{Box Plots}$
+
+#### $\third{- Basic}$ 
+
+```{r}
+colors <- c("firebrick", "darkorange", "forestgreen",
+            "royalblue", "darkorchid")
+
+fig <- plot_ly(data = data_07,
+               type = "box",
+               quartilemethod = "exclusive",
+               y = ~lifeExp,
+               color = ~continent,
+               colors = colors)
+
+fig <- fig %>% 
+  layout(title = "Life Expectancy, 2007",
+         yaxis = list(title = "Life Expectancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "",
+                      zeroline = FALSE,
+                      showline = TRUE))
+
+fig
+```
+
+<br> 
+
+#### $\third{- With Points}$ 
+
+```{r}
+fig <- plot_ly(data = data_07,
+               type = "box",
+               boxpoints = "all",
+               jitter = 0.3,
+               pointpos = -1.8,
+               quartilemethod = "exclusive",
+               y = ~lifeExp,
+               name = "Life expectancy",
+               text = ~country)
+
+fig <- fig %>% 
+  layout(title = "Life Expectancy, 2007",
+         yaxis = list(title = "Life Expectancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "",
+                      zeroline = FALSE,
+                      showline = TRUE))
+
+fig
+```
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/R_underline.png?raw=true)
+
+# $\first{Fundamentals}$
+
+***
+
+### $\second{Axes}$
+
+#### $\third{- Default}$ 
+
+```{r echo = FALSE}
+fig <- plot_ly(data = data_multi,
+               x = ~year)
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "lines",
+            y = ~mean_lifeExp,
+            name = "Mean",
+            line = list(color = "rgba(51, 0, 51, .8)",
+                        width = 2))
+
+fig <- fig %>% 
+  layout(title = "Life Expectancy Over Time",
+         yaxis = list(title = "Life Exepctancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "",
+                      zeroline = FALSE,
+                      showline = TRUE))
+
+fig
+```
+
+<br>
+
+#### $\third{- Basic Formatting}$ 
+
+```{r}
+tickfont <- list(family = "Old Standard TT, serif",
+                 size = 14,
+                 color = "black")
+
+axisfont <- list(family = "Arial, sans-serif",
+                 size = 18,
+                 color = "grey")
+
+xaxis <- list(title = "",
+              autotick = FALSE,
+              tickfont = tickfont,
+              tickangle = -45,
+              ticks = "outside",
+              range = c(1950, 2010),
+              tick0 = 1952,
+              dtick = 5,
+              ticklen = 5,
+              tickwidth = 2,
+              tickcolor = toRGB("blue"),
+              showline = TRUE,
+              linecolor = toRGB("blue"),
+              linewidth = 2)
+
+yaxis <- list(title = "Life Exepctancy",
+              titlefont = axisfont,
+              autotick = FALSE,
+              tickfont = tickfont,
+              ticks = "outside",
+              range = c(-10, 70),
+              tick0 = -10, 
+              dtick = 5,
+              ticklen = 5,
+              tickwidth = 2,
+              tickcolor = toRGB("blue"),
+              showline = TRUE,
+              linecolor = toRGB("blue"),
+              linewidth = 2,
+              zeroline = TRUE,
+              zerolinecolor = toRGB("black"),
+              zerolinewidth = 1)
+
+fig <- fig %>% 
+  layout(xaxis = xaxis, 
+         yaxis = yaxis)
+
+fig
+```
+
+<br>
+
+#### $\third{- Formatting Tick Labels}$ 
+
+```{r echo = FALSE}
+fig <- plot_ly(data = data_multi,
+               x = ~year)
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "lines",
+            y = ~mean_lifeExp,
+            name = "Mean",
+            line = list(color = "rgba(51, 0, 51, .8)",
+                        width = 2))
+
+fig <- fig %>% 
+  layout(title = "Life Expectancy Over Time",
+         yaxis = list(title = "Life Exepctancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "",
+                      zeroline = FALSE,
+                      showline = TRUE))
+```
+
+```{r}
+xaxis <- list(ticktext = list("Initial Measurement\n(1952)", 
+                              "MMR Vaccine\n(1971)", 
+                              "Most Recent\n(2007)"), 
+              tickvals = list(1952, 1971, 2007),
+              tickmode = "array")
+
+yaxis <- list(tickformat = "%")
+
+fig <- fig %>% 
+  layout(xaxis = xaxis, 
+         yaxis = yaxis)
+
+fig
+```
+
+*** 
+
+### $\second{Legends}$
+
+#### $\third{- Default}$ 
+
+```{r echo = FALSE}
+fig <- plot_ly(data = data_means_cont,
+               type = "bar",
+               x = ~continent,
+               y = ~`1952`,
+               name = "1952 Avg",
+               text = ~paste("In 1952 the life expectancy in", continent, 
+                             "was", round(`1952`, 2), "years"), 
+               marker = list(color = "firebrick",
+                             opacity = 0.8,
+                             line = list(color = "black", width = 1)))
+
+fig <- fig %>% 
+  add_trace(y = ~`1972`,
+            name = "1972 Avg",
+            text = ~paste("In 1972 the life expectancy in", continent, 
+                          "was", round(`1972`, 2), "years"), 
+            marker = list(color = "forestgreen"))
+
+fig <- fig %>% 
+  add_trace(y = ~`1992`,
+            name = "1992 Avg",
+            text = ~paste("In 1992 the life expectancy in", continent, 
+                          "was", round(`1992`, 2), "years"), 
+            marker = list(color = "royalblue"))
+
+fig <- fig %>% 
+  layout(title = "Life Expectancy Over Time",
+         yaxis = list(title = "Life Exepctancy",
+                      zeroline = FALSE,
+                      showline = TRUE),
+         xaxis = list(title = "",
+                      zeroline = FALSE,
+                      showline = TRUE))
+
+fig
+```
+
+<br>
+
+#### $\third{- Hiding}$ 
+
+```{r}
+fig <- fig %>% 
+  layout(showlegend = FALSE)
+
+fig
+```
+
+<br>
+
+#### $\third{- Hiding Elements}$
+
+```{r echo = FALSE}
+fig <- fig %>% 
+  layout(showlegend = TRUE)
+```
+
+```{r}
+fig <- fig %>% 
+  add_trace(y = ~`1992` * 1.05,
+            name = "1997 Projection",
+            text = ~paste("In 1997 the life expectancy in", continent, 
+                          "could be", round(`1992` * 1.2, 2), "years"), 
+            marker = list(color = "lightgray"),
+            showlegend = FALSE)
+
+fig
+```
+
+<br> 
+
+#### $\third{- Moving}$ 
+
+```{r}
+fig <- fig %>% 
+  layout(legend = list(orientation = 'h',
+                       x = 0.25,
+                       y = 1.02))
+
+fig
+```
+
+****
+
+### $\second{Error Bars}$
+
+```{r}
+fig <- plot_ly(data = data_multi,
+               x = ~year)
+
+fig <- fig %>% 
+  add_trace(type = "scatter",
+            mode = "lines+markers",
+            y = ~mean_lifeExp,
+            name = "Life Expectancy",
+            line = list(color = "rgba(0, 153, 76, .6)",
+                        width = 2),
+            marker = list(size = 10,
+                          color = "rgba(0, 153, 76, .6)",
+                          line = list(color = "rgba(0, 102, 0, .8)",
+                                      width = 1)),
+            error_y = ~list(array = sd_lifeExp,
+                            color = "gray"),
+            text = ~paste("Mean: ", round(mean_lifeExp, 1),
+                          "\nSD: ", round(sd_lifeExp, 1)),
+            hoverinfo = "text")
+
+fig
+```
