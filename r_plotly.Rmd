@@ -222,11 +222,12 @@ fig <- plot_ly(data = data_means,
                type = "bar",
                x = ~year,
                y = ~mean_lifeExp,
-               text = ~paste("The mean worldwide life expectancy in", year, 
-                             "was", round(mean_lifeExp, 2), "years"), 
                marker = list(color = "firebrick",
                              opacity = 0.8,
-                             line = list(color = "black", width = 1)))
+                             line = list(color = "black", width = 1)),
+               text = ~paste("The mean worldwide life expectancy in", year, 
+                             "was", round(mean_lifeExp, 2), "years"), 
+               hoverinfo = "text")
 
 fig <- fig %>% 
   layout(title = "Life Expectancy Over Time",
@@ -250,25 +251,28 @@ fig <- plot_ly(data = data_means_cont,
                x = ~continent,
                y = ~`1952`,
                name = "1952 Avg",
-               text = ~paste("In 1952 the life expectancy in", continent, 
-                             "was", round(`1952`, 2), "years"), 
                marker = list(color = "firebrick",
                              opacity = 0.8,
-                             line = list(color = "black", width = 1)))
+                             line = list(color = "black", width = 1)),
+               text = ~paste("In 1952 the life expectancy in", continent, 
+                             "was", round(`1952`, 2), "years"),
+               hoverinfo = "text")
 
 fig <- fig %>% 
   add_trace(y = ~`1972`,
             name = "1972 Avg",
+            marker = list(color = "forestgreen"),
             text = ~paste("In 1972 the life expectancy in", continent, 
                           "was", round(`1972`, 2), "years"), 
-            marker = list(color = "forestgreen"))
+            hoverinfo = "text")
 
 fig <- fig %>% 
   add_trace(y = ~`1992`,
             name = "1992 Avg",
+            marker = list(color = "royalblue"),
             text = ~paste("In 1992 the life expectancy in", continent, 
                           "was", round(`1992`, 2), "years"), 
-            marker = list(color = "royalblue"))
+            hoverinfo = "text")
 
 fig <- fig %>% 
   layout(title = "Life Expectancy Over Time",
@@ -292,42 +296,47 @@ fig <- plot_ly(data = data_pop,
                x = ~year,
                y = ~Asia,
                name = "Asia",
-               text = ~paste("Continent: Asia",
-                             "\nPopulation: ", scales::comma(Asia)), 
                marker = list(color = 'rgba(204,0,0,0.6)',
-                             line = list(color = 'rgb(204,0,0)', width = 1.5)))
+                             line = list(color = 'rgb(204,0,0)', width = 1.5)),
+               text = ~paste("Continent: Asia",
+                             "\nPopulation: ", scales::comma(Asia)),
+               hoverinfo = "text")
 
 fig <- fig %>% 
   add_trace(y = ~Africa,
             name = "Africa",
+            marker = list(color = 'rgba(255,128,0,0.6)',
+                          line = list(color = 'rgb(204,128,0)', width = 1.5)),
             text = ~paste("Continent: Africa",
                           "\nPopulation: ", scales::comma(Africa)), 
-            marker = list(color = 'rgba(255,128,0,0.6)',
-                          line = list(color = 'rgb(204,128,0)', width = 1.5)))
+            hoverinfo = "text")
 
 fig <- fig %>% 
   add_trace(y = ~Americas,
             name = "Americas",
+            marker = list(color = 'rgba(0,102,0,0.6)',
+                          line = list(color = 'rgb(0,102,0)', width = 1.5)),
             text = ~paste("Continent: Americas",
                           "\nPopulation: ", scales::comma(Americas)), 
-               marker = list(color = 'rgba(0,102,0,0.6)',
-                             line = list(color = 'rgb(0,102,0)', width = 1.5)))
+            hoverinfo = "text")
 
 fig <- fig %>% 
   add_trace(y = ~Europe,
             name = "Europe",
+            marker = list(color = 'rgba(0,51,102,0.6)',
+                          line = list(color = 'rgb(0,51,102)', width = 1.5)),
             text = ~paste("Continent: Europe",
                           "\nPopulation: ", scales::comma(Europe)), 
-            marker = list(color = 'rgba(0,51,102,0.6)',
-                          line = list(color = 'rgb(0,51,102)', width = 1.5)))
+            hoverinfo = "text")
 
 fig <- fig %>% 
   add_trace(y = ~Oceania,
             name = "Oceania",
+            marker = list(color = 'rgba(51,0,102,0.6)',
+                          line = list(color = 'rgb(51,0,102)', width = 1.5)),
             text = ~paste("Continent: Oceania",
                           "\nPopulation: ", scales::comma(Oceania)), 
-               marker = list(color = 'rgba(51,0,102,0.6)',
-                             line = list(color = 'rgb(51,0,102)', width = 1.5)))
+            hoverinfo = "text")
 
 fig <- fig %>% 
   layout(title = "Population Over Time",
@@ -539,25 +548,28 @@ fig <- plot_ly(data = data_means_cont,
                x = ~continent,
                y = ~`1952`,
                name = "1952 Avg",
-               text = ~paste("In 1952 the life expectancy in", continent, 
-                             "was", round(`1952`, 2), "years"), 
                marker = list(color = "firebrick",
                              opacity = 0.8,
-                             line = list(color = "black", width = 1)))
+                             line = list(color = "black", width = 1)),
+               text = ~paste("In 1952 the life expectancy in", continent, 
+                             "was", round(`1952`, 2), "years"), 
+               hoverinfo = "text")
 
 fig <- fig %>% 
   add_trace(y = ~`1972`,
             name = "1972 Avg",
+            marker = list(color = "forestgreen"),
             text = ~paste("In 1972 the life expectancy in", continent, 
                           "was", round(`1972`, 2), "years"), 
-            marker = list(color = "forestgreen"))
+            hoverinfo = "text")
 
 fig <- fig %>% 
   add_trace(y = ~`1992`,
             name = "1992 Avg",
+            marker = list(color = "royalblue"),
             text = ~paste("In 1992 the life expectancy in", continent, 
                           "was", round(`1992`, 2), "years"), 
-            marker = list(color = "royalblue"))
+            hoverinfo = "text")
 
 fig <- fig %>% 
   layout(title = "Life Expectancy Over Time",
