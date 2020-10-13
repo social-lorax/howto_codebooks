@@ -23,17 +23,26 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
 ***
 
+### $\second{Connection}$
+
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/sql_database.png)
+
+****
+
+### $\second{Relational Tables}$
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/sql_organization.png)
 
+
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
 
-# $\first{Connecting to Database}$
+# $\first{Working with a Database}$
 
 ***
 
 ### $\second{Python}$
+
+*In progress*
 
 ****
 
@@ -53,14 +62,12 @@ library(RMySQL)
 #### $\third{- Create Connection}$ 
 
 ```{r}
-con <- dbConnect(
-  RMySQL::MySQL(),
-  host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
-  dbname = "tweater",
-  user = "student",
-  port = 3306,
-  password = getPass::getPass("Database Password")
-)
+con <- dbConnect(RMySQL::MySQL(),
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 dbname = "tweater",
+                 user = "student",
+                 port = 3306,
+                 password = getPass::getPass("Database Password"))
 ```
 
 <br>
@@ -76,7 +83,6 @@ dbListTables(con)
 #### $\third{- Read in Table}$ 
 
 ```{r}
-# Read in table
 df <- dbReadTable(con,"users")
 
 head(df)
@@ -95,46 +101,35 @@ dbGetQuery(con,
 
 <br>
 
-```{r eval=FALSE}
-res <- dbSendQuery(con,
-                   "SELECT *
-                   FROM comments
-                   WHERE user_id = 1")
-
-dbFetch(res, n = 100)
-```
-
-<br>
-
 #### $\third{- Disconnect}$ 
 
 ```{r eval=FALSE}
-# Disconnect
 dbDisconnect(con)
 ```
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
 
-# $\first{Starting Off}$
+# $\first{Working with a Table}$
 
 ***
 
-### $\second{Glance}$
+### $\second{Shape}$
 
-*Number of Rows* 
+#### $\third{- Rows}$ 
 
 ```{r eval=FALSE}
 SELECT COUNT(*)
   FROM table;
 ```
 
+<br> 
 
-*Columns*
+#### $\third{- Columns}$ 
 
 ```{r eval=FALSE}
 SELECT * 
   FROM table
- LIMIT 5;
+ LIMIT 1;
 ```
 
 ***
@@ -147,6 +142,8 @@ SELECT COUNT(*) - COUNT(column1) AS column1_missing,
   FROM table;
 ```
 
+Other considerations:
+
 * Are there error codes (bunched observations at a specific value, 9, 99, -99)
 * Are there missing codes showing up as text (NA, NaN, N/A, #NA)
 * Is 0 really 0 or a missing code
@@ -154,6 +151,8 @@ SELECT COUNT(*) - COUNT(column1) AS column1_missing,
 ***
 
 ### $\second{Numeric Columns}$
+
+#### $\third{- Basic Summary Stats}$ 
 
 ```{r eval=FALSE}
 SELECT AVG(column) AS avg_column,
@@ -171,6 +170,8 @@ SELECT AVG(column) AS avg_column,
 
 <br> 
 
+#### $\third{- Percentiles}$ 
+
 ```{r eval=FALSE}
 SELECT PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY column) AS perc_25,
        PERCENTILE_DISC(0.5) WITHIN GROUP (ORDER BY column) AS median,
@@ -183,6 +184,8 @@ SELECT PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY column) AS perc_25,
 |3.25    |5.5    |7.75    |
 
 <br>
+
+#### $\third{- Frequency Table}$ 
 
 ```{r eval=FALSE}
 WITH bins AS (
@@ -209,6 +212,8 @@ LEFT JOIN table
 |60   |65   |0    |
 
 <br>
+
+#### $\third{- Correlation}$ 
 
 ```{r eval=FALSE}
 SELECT CORR(column1, column2) AS corr_column1_column2
@@ -354,6 +359,8 @@ SELECT category,
 
 <br>
 
+#### $\third{- Split}$
+
 ```{r eval=FALSE}
 SELECT category, 
        SPLIT_PART(category, ",", 1) AS first,
@@ -366,25 +373,9 @@ SELECT category,
 |---------|------|-------|------|
 |a,true,1 |a     |true   |1     |
 
-```{r eval=FALSE}
-SELECT category
-       CASE WHEN category LIKE '%: %' THEN SPLIT_PART(category, ': ', 1)
-            WHEN category LIKE '% - %' THEN SPLIT_PART(category, ' - ', 1)
-            ELSE SPLIT_PART(category, ', ', 1) 
-       END AS major_category
-  FROM table;
-```
-
-|category             |major_category |
-|---------------------|---------------|
-|education: primary   |education      |
-|education: secondary |education      |
-|agriculture - corn   |agriculture    |
-|agriculture - other  |agriculture    |
-|arts, theater        |arts           |
-|arts, film           |arts           |
-
 <br> 
+
+#### $\third{- Concatenate}$
 
 ```{r eval = FALSE}
 SELECT first, last, 
@@ -400,7 +391,7 @@ SELECT first, last,
 
 ### $\second{Time}$
 
-#### $\third{- Adding Time}$
+#### $\third{- Add Time}$
 
 * `minutes` 
 * `hours` 
@@ -636,30 +627,23 @@ SELECT datetime,
 
 ### $\second{Subqueries}$
 
-*Inside a WHERE clause* 
+#### $\third{- Inside a WHERE clause}$
 
 ```
 SELECT item, stat  
-FROM data  
-WHERE stat <  
-  (SELECT AVG(stat)  
-   FROM data);
+  FROM data  
+ WHERE stat <  
+       (SELECT AVG(stat)  
+          FROM data);
 ```
 
 ```{r eval=FALSE}
 #Games with more than average goals
-
-query <- "
-
 SELECT date, home_goal, away_goal
-FROM matches
-WHERE (home_goal + away_goal) >
-  (SELECT AVG(home_goal + away_goal)
-   FROM matches);
-           
-"
-
-dbGetQuery(con, query)
+  FROM matches
+ WHERE (home_goal + away_goal) >
+       (SELECT AVG(home_goal + away_goal)
+          FROM matches);
 ```
 
 |date       | home_goal |away_goal |
@@ -672,61 +656,50 @@ dbGetQuery(con, query)
 
 ```
 SELECT *  
-FROM dataset1  
-WHERE item IN  
-  (SELECT item  
-   FROM dataset2);
+  FROM dataset1  
+ WHERE item IN  
+       (SELECT item  
+        FROM dataset2);
 ```
 
 ```{r eval=FALSE}
 #Teams without a home game 
-
-query <- "
-
-SELECT team_long_name, team_short_name
-FROM teams
-WHERE team_id NOT IN
-  (SELECT DISTINCT hometeam_id
-   FROM matches);
-"
-
-dbGetQuery(con, query)
+SELECT team_name
+  FROM teams
+ WHERE team_id NOT IN
+       (SELECT DISTINCT hometeam_id
+          FROM matches);
 ```
 
-|team_long_name |team_short_name |
-|---------------|----------------|
-|FCV Dender EH  |DEN             |
-|KSV Roeselare  |ROS             |
-|Tubize         |TUB             |
+|team_long_name |
+|---------------|
+|FCV Dender EH  |
+|KSV Roeselare  |
+|Tubize         |
 
 <br> 
 
-*Inside a FROM Clause*
+#### $\third{- Inside a FROM Clause}$
 
 ```
-SELECT *
-FROM (SELECT key, a.col1, b.col2, derivedcol
-      FROM dataset1 AS a
-      INNER JOIN dataset2 AS b
-      USING (key))
-WHERE derivedcol > value
+    SELECT *
+      FROM (SELECT key, a.col1, b.col2, derivedcol
+              FROM dataset1 AS a
+INNER JOIN dataset2 AS b
+           USING (key))
+     WHERE derivedcol > value
 ```
 
 ```{r eval=FALSE}
-#Countries with high-scoring matches
-
-query <- "
-
-SELECT c.name AS country_name, COUNT(m.id) AS matches
-FROM country as c
+#Number of high scoring matches per country
+    SELECT c.name AS country_name, COUNT(m.id) AS matches
+      FROM country as c
 INNER JOIN (SELECT country_id, id
-            FROM matches_2013_2014
-            WHERE (home_goal + away_goal) >= 10) AS m
-ON c.id = m.country_id
-GROUP BY country_name;
-"
-
-dbGetQuery(con, query)
+              FROM matches_2013_2014
+             WHERE (home_goal + away_goal) >= 10) 
+                AS m
+        ON c.id = m.country_id
+  GROUP BY country_name;
 ```
 
 |country_name   |matches         |
@@ -737,29 +710,23 @@ dbGetQuery(con, query)
 
 <br> 
 
-*Inside a SELECT Clause*
+#### $\third{- Inside a SELECT Clause}$
 
 ```
 SELECT item,
   (SELECT derviedcol
-   FROM dataset2) AS derivedcol 
-FROM dataset1;
+     FROM dataset2) AS derivedcol 
+  FROM dataset1;
 ```
 
 ```{r eval=FALSE}
 #Comparing team average to overall average 
-
-query <- "
-
-SELECT country, 
-       AVG(home_goal + away_goal) AS avg_goals,
-       AVG(home_goal + away_goal) - (SELECT AVG(home_goal + away_goal
-                                     FROM matches)) AS diff
-FROM matches
+  SELECT country, 
+         AVG(home_goal + away_goal) AS avg_goals,
+         AVG(home_goal + away_goal) - (SELECT AVG(home_goal + away_goal
+                                         FROM matches)) AS diff
+    FROM matches
 GROUP BY country;
-"
-
-dbGetQuery(con, query)
 ```
 
 |country     |avg_goals |diff |
@@ -770,38 +737,30 @@ dbGetQuery(con, query)
 
 <br> 
 
-*Aliased*
+#### $\third{- Aliased}$
 
 ```
 WITH alias AS(
   SELECT item, derivedcol
-  FROM dataset
-)
+    FROM dataset)
 
 SELECT derivedcol 
-FROM alias;
+  FROM alias;
 ```
 
 ```{r eval=FALSE}
 #Comparing team average to overall average 
-
-query <- "
-
 WITH overall_avg AS(
   SELECT season, AVG(home_goal + away_goal) AS overall_avg
-  FROM matches
-)
+    FROM matches)
 
-SELECT m.country, 
-       AVG(m.home_goal + m.away_goal) AS avg_goals,
-       AVG(m.home_goal + m.away_goal) - o.overall_avg AS diff
-FROM matches AS m
+   SELECT m.country, 
+          AVG(m.home_goal + m.away_goal) AS avg_goals,
+          AVG(m.home_goal + m.away_goal) - o.overall_avg AS diff
+     FROM matches AS m
 LEFT JOIN overall_avg as o
-USING (season)
-GROUP BY m.country;
-"
-
-dbGetQuery(con, query)
+          USING (season)
+ GROUP BY m.country;
 ```
 
 |country     |avg_goals |diff |
@@ -824,15 +783,9 @@ dbGetQuery(con, query)
 
 ```{r eval=FALSE}
 #Overall average goals
-
-query <- "
-
 SELECT match_id, date, goals, 
        AVG(goals) OVER() AS overall_avg_goals
-FROM matches;
-"
-
-dbGetQuery(con, query)
+  FROM matches;
 ```
 
 |match_id|date       |goals |overall_avg_goals |
@@ -847,16 +800,10 @@ dbGetQuery(con, query)
 
 ```{r eval=FALSE}
 #Overall and season average goals
-
-query <- "
-
 SELECT match_id, season, goals, 
        AVG(goals) OVER() AS overall_avg_goals,
        AVG(goals) OVER(PARTITION BY season) AS season_avg_goals
-FROM matches;
-"
-
-dbGetQuery(con, query)
+  FROM matches;
 ```
 
 |match_id|season    |goals |overall_avg_goals |season_avg_goals |
@@ -872,15 +819,9 @@ dbGetQuery(con, query)
 
 ```{r eval=FALSE}
 #Rank by number of goals
-
-query <- "
-
 SELECT match_id, date, goals, 
        RANK() OVER(ORDER BY goals DESC) AS goal_rank
-FROM matches;
-"
-
-dbGetQuery(con, query)
+  FROM matches;
 ```
 
 |match_id|date       |goals |goal_rank |
@@ -894,16 +835,10 @@ dbGetQuery(con, query)
 
 ```{r eval=FALSE}
 #Rank by average number of goals
-
-query <- "
-
-SELECT league, AVG(goals) AS avg_goals, 
-       RANK() OVER(ORDER BY AVG(goals) DESC) AS league_rank
-FROM matches
+  SELECT league, AVG(goals) AS avg_goals, 
+         RANK() OVER(ORDER BY AVG(goals) DESC) AS league_rank
+    FROM matches
 GROUP BY league;
-"
-
-dbGetQuery(con, query)
 ```
 
 |league                 |avg_goals |league_rank |
@@ -918,18 +853,12 @@ dbGetQuery(con, query)
 
 ```{r eval=FALSE}
 #Running total and average
-
-query <- "
-
 SELECT match_id, date, goals, 
        SUM(goals) OVER(ORDER BY date) 
           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total,
        AVG(goals) OVER(ORDER BY date) 
           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_avg
-FROM matches;
-"
-
-dbGetQuery(con, query)
+  FROM matches;
 ```
 
 |match_id|date       |goals |running_total |running_avg |
@@ -943,18 +872,12 @@ dbGetQuery(con, query)
 
 ```{r eval=FALSE}
 #Total and average based on set rows
-
-query <- "
-
 SELECT match_id, date, goals, 
        SUM(goals) OVER(ORDER BY date) 
           ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS three_match_total,
        AVG(goals) OVER(ORDER BY date) 
           ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS three_match_avg
-FROM matches;
-"
-
-dbGetQuery(con, query)
+  FROM matches;
 ```
 
 |match_id|date       |goals |three_match_total |three_match_avg |
@@ -968,15 +891,21 @@ dbGetQuery(con, query)
 
 ### $\second{Count a Case When}$
 
-```{r}
-query <- "
-
+```{r eval=FALSE}
 SELECT user_id,
-  COUNT(CASE WHEN message LIKE '%!%' THEN 'Excited Tweet' END) as 'Excited',
-  COUNT(CASE WHEN message LIKE '%?%' THEN 'Question' END) as 'Question'
-FROM comments
-GROUP BY user_id;
-           
+       COUNT(CASE WHEN message LIKE '%!%' THEN 'Excited Tweet' END) as 'Excited',
+       COUNT(CASE WHEN message LIKE '%?%' THEN 'Question' END) as 'Question'
+  FROM comments
+ GROUP BY user_id;
+```
+
+```{r echo = FALSE}
+query <- "
+SELECT user_id,
+       COUNT(CASE WHEN message LIKE '%!%' THEN 'Excited Tweet' END) as 'Excited',
+       COUNT(CASE WHEN message LIKE '%?%' THEN 'Question' END) as 'Question'
+  FROM comments
+ GROUP BY user_id;
 "
 
 dbGetQuery(con, query)
@@ -984,7 +913,15 @@ dbGetQuery(con, query)
 
 <br>
 
-```{r}
+```{r eval = FALSE}
+  SELECT tweat_id,
+         ROUND(AVG(CASE WHEN message LIKE '%!%' THEN 1 ELSE 0 END), 2) as 'Excited',
+         ROUND(AVG(CASE WHEN message LIKE '%?%' THEN 1 ELSE 0 END), 2) as 'Question'
+    FROM comments
+GROUP BY tweat_id;
+```
+
+```{r echo = FALSE}
 query <- "
 
 SELECT tweat_id,
