@@ -26,6 +26,8 @@ Feel free to use them and reach out with suggestions.
 
 [Census: Tidycensus](r_census.html)
 
+[Tables: gt](r_gt.html)
+
 \newline
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
