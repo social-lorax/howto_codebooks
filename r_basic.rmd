@@ -9,6 +9,14 @@ output:
     df_print: kable
 ---
 
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
+```
+
 ```{r echo=FALSE, message=FALSE}
 library(tidyverse)
 ```
@@ -17,19 +25,19 @@ library(tidyverse)
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
 
-# **Super Basic**
+# $\first{Super Basic}$
 
 ***
 
-### **Comments**
+### $\second{Comments}$
 
 ```{r}
 # This is a comment, it won't do anything
 ```
 
-***
+*** 
 
-### **Help**
+### $\second{Help}$
 
 Use a `?` to pull up information on a package and its arguments
 ```{r eval=FALSE}
@@ -38,25 +46,37 @@ Use a `?` to pull up information on a package and its arguments
 
 ***
 
-### **Data Types**
+### $\second{Data Types}$
 
-#### *- Checking*
+#### $\third{- Checking}$
+
+**Integer** = number with no decimal (set using an `L`)
 
 ```{r}
 typeof(100L)
+```
+
+**Double** = number with decimals 
+
+```{r}
 typeof(100.0)
+```
+
+**Character** = value-less characters 
+
+```{r}
 typeof('100')
+```
+
+**Logical** = binary value of True/False or 1/0
+
+```{r}
 typeof(100==100)
 ```
 
-Integer = number with no decimal  
-Double = number with decimals  
-Character = value-less characters  
-Logical = binary value of True/False or 1/0
-
 <br>
 
-#### *- Use*
+#### $\third{- Use}$
 
 Using a double in an operation will return a double 
 
@@ -73,16 +93,17 @@ typeof(1L / 1L)
 
 <br>
 
-#### *- Conversion*
+#### $\third{- Conversion}$
+
 ```{r eval=FALSE}
 as.integer()
 as.double()
 as.character()
 ```
 
-<br>
+***
 
-#### *- Boolean Operators*
+### $\second{Boolean Operators}$
 
 |**Function**|**Symbol**|
 |------------|--------|
@@ -97,7 +118,7 @@ as.character()
 
 ***
 
-### **Variables**
+### $\second{Variables}$
 
 ```{r}
 variable <- "whatever you want"
@@ -119,17 +140,23 @@ b
 
 ***
 
-### **Factors**
+### $\second{Factors}$
 
 (Making strings into categorical variables)
 
-*Basic String*
 ```{r}
 example_strings <- c("medium", "slow", "slow", "medium", "fast")
 class(example_strings)
 ```
 
-*Categorical Factor*
+```{r echo = FALSE}
+example_strings
+```
+
+<br>
+
+#### $\third{- Categorical Factor}$
+
 ```{r}
 example_factor <- factor(example_strings)
 class(example_factor)
@@ -139,9 +166,15 @@ class(example_factor)
 example_factor
 ```
 
-*Ordinal Factor*
+<br> 
+
+#### $\third{- Ordinal Factor}$
+
 ```{r}
-example_ordered_factor <- factor(example_strings, ordered = TRUE, levels = c("slow","medium","fast"))
+example_ordered_factor <- factor(example_strings, 
+                                 ordered = TRUE, 
+                                 levels = c("slow","medium","fast")
+                                 )
 class(example_ordered_factor)
 ```
 
@@ -151,46 +184,54 @@ example_ordered_factor
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
 
-# **Mathematical Functions**
+# $\first{Mathematical Functions}$
 
-### **Basic Arithmatic**  
+***
+
+### $\second{Basic Arithmatic}$
+
+**Addition**
 
 ```{r}
-#Addition
 1+2
 ```
 
+**Subtraction**
+
 ```{r}
-#Subtraction
 4-2
 ```
 
+**Multiplication**
+
 ```{r}
-#Multiplication
 5*6
 ```
 
+**Division**
+
 ```{r}
-#Division
 9/3
 ```
   
+**Exponents**
+
 ```{r}
-# Exponents
 2^3
 ```
   
-```{r}
-#Remainder
-7%%3
-```
+**Remainder**
 
 * `x%%2=0` is a quick reference for even  
 * `x%%2=1` is a quick reference for odd
+  
+```{r}
+7%%3
+```
 
-****
+***
 
-### **Rounding Decimals**
+### $\second{Rounding Decimals}$
 
 ```{r}
 round(10.567)
@@ -199,7 +240,7 @@ round(10.567, 2)
 
 ****
 
-### **Maximum and Minimum**
+### $\second{Maximum and Minimum}$
 
 ```{r}
 eg_list <- c(1, 2, 3)
@@ -210,15 +251,16 @@ min(eg_list)
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
 
-# **Vectors**
+# $\first{Vectors}$
 
 (One dimensional array; all the same data type)
 
 ***
 
-### **Creating**
+### $\second{Creating}$
 
-#### *- Basic Vector*
+#### $\third{- Basic Vector}$
+
 ```{r}
 eg_vector <- c(1, 2, 3)
 eg_vector
@@ -226,7 +268,8 @@ eg_vector
 
 <br>
 
-#### *- Named Vector*
+#### $\third{- Named Vector}$
+
 ```{r}
 names(eg_vector) <- c("item1", "item2", "item3")
 eg_vector
@@ -234,16 +277,17 @@ eg_vector
 
 ***
 
-### **Operations**
+### $\second{Operations}$
 
-#### *- Adding Vectors*
+#### $\third{- Adding Vectors}$
 
-*Within*
+**Within**
+
 ```{r}
 sum(eg_vector)
 ```
 
-*Between* 
+**Between** 
 
 `c(1, 2, 3) + c(4, 5, 6)` = 
 
@@ -259,23 +303,25 @@ A_vector + B_vector
 
 <br>
 
-#### *- Evaluating*
+#### $\third{- Evaluating}$
 
-*Testing*
+**Testing**
+
 ```{r}
 A_vector > 2
 ```
 
-*Extracting True Values*
+**Extracting**
+
 ```{r}
 A_vector[A_vector > 2]
 ```
 
 ***
 
-### **Indexing**
+### $\second{Indexing}$
 
-#### *- Extract a specific item*
+#### $\third{- Extract a specific item}$
 
 ```{r}
 eg_vector[1]
@@ -283,7 +329,7 @@ eg_vector[1]
 
 <br>
 
-#### *- Extract a set of specific items*
+#### $\third{- Extract a set of specific items}$
 
 ```{r}
 eg_vector[c(1,3)]
@@ -291,7 +337,7 @@ eg_vector[c(1,3)]
 
 <br>
 
-#### *- Extract a range of items*
+#### $\third{- Extract a range of items}$
 
 ```{r}
 eg_vector[1:3]
@@ -299,7 +345,7 @@ eg_vector[1:3]
 
 <br>
 
-#### *- Extract a specific named item*
+#### $\third{- Extract a specific named item}$
 
 ```{r}
 eg_vector["item1"]
@@ -307,7 +353,7 @@ eg_vector["item1"]
 
 ***
 
-### **Editing**
+### $\second{Editing}$
 
 ```{r}
 eg_vector["item1"] <- 100
@@ -317,15 +363,15 @@ eg_vector
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
 
-# **Lists**
+# $\first{Lists}$
 
 (One dimensional array; elements do not have to be related in any way)
  
 ***
 
-### **Creating**
+### $\second{Creating}$
 
-#### *- Basic List*
+#### $\third{- Basic List}$
 
 ```{r}
 list(A_vector, B_vector)
@@ -333,7 +379,7 @@ list(A_vector, B_vector)
 
 <br>
 
-#### *- Named List*
+#### $\third{- Named List}$
 
 ```{r}
 list("A" = A_vector,
@@ -349,9 +395,9 @@ eg_list
 
 ***
 
-### **Indexing**
+### $\second{Indexing}$
 
-#### *- Extract specific item*
+#### $\third{- Extract specific item}$
 
 ```{r}
 eg_list[[1]]
@@ -359,15 +405,11 @@ eg_list[[1]]
 
 <br>
 
-#### *- Extract specific item by name*
+#### $\third{- Extract specific item by name}$
 
 ```{r}
 eg_list[["A"]]
 ```
-
-<br>
-
-#### *- Extract specific item by name*
 
 ```{r}
 eg_list$A
@@ -375,7 +417,7 @@ eg_list$A
 
 <br>
 
-#### *- Extract specific item within a specific item*
+#### $\third{- Extract specific item within a specific item}$
 
 ```{r}
 eg_list[[1]][1]
@@ -383,9 +425,9 @@ eg_list[[1]][1]
 
 ***
 
-### **Editing**
+### $\second{Editing}$
 
-#### *- Combining Lists*
+#### $\third{- Combining Lists}$
 
 ```{r}
 c(eg_list, eg_list)
@@ -397,7 +439,7 @@ list(eg_list, eg_list)
 
 <br>
 
-#### *- Adding/Changing Items*
+#### $\third{- Adding/Changing Items}$
 
 ```{r}
 eg_list[3] <- 100
@@ -408,28 +450,32 @@ eg_list
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
 
-# **Matrices**
+# $\first{Matrices}$
 
 (Two dimensional array; all the same data type)
 
 ***
 
-### **Creating**
+### $\second{Creating}$
 
-#### *- Filling by Row*
+#### $\third{- Filling by Row}$
 
 ```{r}
 matrix(1:9,byrow=TRUE,nrow=3)
 ```
 
-#### *- Filling by Column*
+<br>
+
+#### $\third{- Filling by Column}$
+
 ```{r}
 matrix(1:9,byrow=FALSE,nrow=3)
 ```
 
 <br>
 
-#### *- Naming*
+#### $\third{- Naming}$
+
 ```{r}
 eg_matrix <- matrix(1:9,byrow=TRUE,nrow=3)
 
@@ -441,9 +487,9 @@ eg_matrix
 
 ***
 
-### **Operations**
+### $\second{Operations}$
 
-#### *- Row Sums*
+#### $\third{- Row Sums}$
 
 ```{r}
 rowSums(eg_matrix)
@@ -451,7 +497,7 @@ rowSums(eg_matrix)
 
 <br>
 
-#### *- Column Sums*
+#### $\third{- Column Sums}$
 
 ```{r}
 colSums(eg_matrix)
@@ -459,7 +505,8 @@ colSums(eg_matrix)
 
 <br>
 
-#### *- Adding Matrices*
+#### $\third{- Adding Matrices}$
+
 ```{r}
 matrix_a <- matrix(1:9,byrow=TRUE,nrow=3)
 
@@ -470,9 +517,9 @@ matrix_a + matrix_b
 
 ***
 
-### **Indexing**
+### $\second{Indexing}$
 
-#### *- Extract a specific item*
+#### $\third{- Extract a specific item}$
 
 ```{r}
 eg_matrix[1,2]
@@ -480,7 +527,7 @@ eg_matrix[1,2]
 
 <br>
 
-#### *- Extract a subset*
+#### $\third{- Extract a subset}$
 
 ```{r}
 eg_matrix[1:2,2:3]
@@ -488,7 +535,7 @@ eg_matrix[1:2,2:3]
 
 <br>
 
-#### *- Extract a specific subset*
+#### $\third{- Extract a specific subset}$
 
 ```{r}
 eg_matrix[c(1,3),2:3]
@@ -496,7 +543,7 @@ eg_matrix[c(1,3),2:3]
 
 <br>
 
-#### *- Extract a row and all columns*
+#### $\third{- Extract a row and all columns}$
 
 ```{r}
 eg_matrix[1,]
@@ -504,7 +551,7 @@ eg_matrix[1,]
 
 <br>
 
-#### *- Extract a column and all rows*
+#### $\third{- Extract a column and all rows}$
 
 ```{r}
 eg_matrix[,1]
@@ -512,9 +559,9 @@ eg_matrix[,1]
 
 ***
 
-### **Editing**
+### $\second{Editing}$
 
-#### *- Adding a column*
+#### $\third{- Adding a column}$
 
 ```{r}
 cbind(eg_matrix, eg_vector)
@@ -522,7 +569,7 @@ cbind(eg_matrix, eg_vector)
 
 <br>
 
-#### *- Adding a row*
+#### $\third{- Adding a row}$
 
 ```{r}
 rbind(eg_matrix, eg_vector)
@@ -530,7 +577,7 @@ rbind(eg_matrix, eg_vector)
 
 <br>
 
-#### *- Replacing a specific value*
+#### $\third{- Replacing a specific value}$
 
 ```{r}
 eg_matrix[1,2] <- 100
@@ -539,13 +586,13 @@ eg_matrix
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
 
-# **Dataframes**
+# $\first{Dataframes}$
 
 (Two dimensional array; all the same data type within a column, but different columns can have different data types)
 
 ***
 
-### **Creating**
+### $\second{Creating}$
 
 ```{r}
 name <- c("Mercury", "Venus", "Earth", "Mars")
@@ -561,15 +608,17 @@ planets_df
 
 ***
 
-### **Operations**
+### $\second{Operations}$
 
-#### *- Order Ascending*
+#### $\third{- Order Ascending}$
 
 ```{r}
 planets_df[order(planets_df$diameter),"name"]
 ```
 
-#### *- Order Descending*
+<br>
+
+#### $\third{- Order Descending}$
 
 ```{r}
 planets_df[order(planets_df$diameter,decreasing=TRUE),"name"]
@@ -577,9 +626,9 @@ planets_df[order(planets_df$diameter,decreasing=TRUE),"name"]
 
 ***
 
-### **Indexing**
+### $\second{Indexing}$
 
-#### *- Extract a specific item*
+#### $\third{- Extract a specific item}$
 
 ```{r}
 planets_df[2,1]
@@ -587,7 +636,7 @@ planets_df[2,1]
 
 <br>
 
-#### *- Extract a subset*
+#### $\third{- Extract a subset}$
 
 ```{r}
 planets_df[2:3,1:2]
@@ -595,7 +644,7 @@ planets_df[2:3,1:2]
 
 <br>
 
-#### *- Extract a specific subset*
+#### $\third{- Extract a specific subset}$
 
 ```{r}
 planets_df[c(1,3),1:2]
@@ -603,7 +652,7 @@ planets_df[c(1,3),1:2]
 
 <br>
 
-#### *- Extract all rows of a column*
+#### $\third{- Extract all rows of a column}$
 
 ```{r}
 planets_df[,1]
@@ -611,7 +660,7 @@ planets_df[,1]
 
 <br>
 
-#### *- Extract all columns of a row*
+#### $\third{- Extract all columns of a row}$
 
 ```{r}
 planets_df[1,]
@@ -619,15 +668,11 @@ planets_df[1,]
 
 <br>
 
-#### *- Extract column by name*
+#### $\third{- Extract column by name}$
 
 ```{r}
 planets_df[,"diameter"]
 ```
-
-<br>
-
-#### *- Extract column by name*
 
 ```{r}
 planets_df$rings
@@ -635,7 +680,7 @@ planets_df$rings
 
 <br>
 
-#### *- Extract based on values*
+#### $\third{- Extract based on values}$
 
 ```{r}
 planets_df[planets_df$rotation<0,]
@@ -645,11 +690,11 @@ planets_df[planets_df$rotation<0,]
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
 
-# **If Statements**
+# $\first{If Statements}$
 
 ***
 
-### **Single If**
+### $\second{Single If}$
 
 ```{r eval=FALSE}
 if (condition) {
@@ -659,7 +704,7 @@ if (condition) {
 
 ****
 
-### **If/Else**
+### $\second{If/Else}$
 
 ```{r eval=FALSE}
 if (condition) {
@@ -671,7 +716,7 @@ if (condition) {
 
 ****
 
-### **If and Multiple Elses**
+### $\second{If and Multiple Elses}$
 
 ```{r eval=FALSE}
 if (condition_1) {
@@ -685,13 +730,13 @@ if (condition_1) {
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png) 
 
-# **Loops**
+# $\first{Loops}$
 
 ***
 
-### **While**
+### $\second{While}$
 
-#### *- External Condition*
+#### $\third{- External Condition}$
 
 ```{r eval=FALSE}
 while (condition) {
@@ -701,12 +746,13 @@ while (condition) {
 
 <br>
 
-#### *- Indexed*
+#### $\third{- Indexed}$
 
-```{r eval=FALSE}
+```{r}
 i <- 1
-while (i <= 10) {
-  expression
+
+while (i <= 3) {
+  print(i)
   
   i <- i + 1
 }
@@ -714,9 +760,9 @@ while (i <= 10) {
 
 ***
 
-### **For**
+### $\second{For}$
 
-#### *- Iterate over a list*
+#### $\third{- Iterate over a list}$
 
 ```{r}
 fruit_list <- c("Apples", "Strawberries", "Bananas")
@@ -728,25 +774,23 @@ for (item in fruit_list) {
 
 <br>
 
-#### *- Apply a function over a list*
+#### $\third{- Iterate over a sequence}$
 
 ```{r}
-number_list <- c(1,2,3)
-
-for (i in seq_along(number_list)) {
-  print(number_list[i] + 1)
+for (i in seq_along(1:3)) {
+  print(i + 1)
 }
 ```
 
 <br>
 
-#### *- Fill in a new list*
+#### $\third{- Fill in a new list}$
 
 ```{r}
-dummy_list <- vector("double", length(number_list))
+dummy_list <- list()
 
-for (i in seq_along(number_list)) {
-  dummy_list[[i]] <- number_list[i] + 1
+for (i in seq_along(1:3)) {
+  dummy_list[[i]] <- i + 1
 }
 
 dummy_list
@@ -754,11 +798,11 @@ dummy_list
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
 
-# **Functions**
+# $\first{Functions}$
 
 ***
 
-### **Existing**
+### $\second{Existing}$
 
 ```{r eval=FALSE}
 install.packages("package")
@@ -783,9 +827,9 @@ update.packages()
 
 ***
 
-### **Creating**
+### $\second{Creating}$
 
-#### *- Basic*
+#### $\third{- Basic}$
 
 ```{r eval=FALSE}
 function_name <- function (argument_1, argument_2) {
@@ -795,7 +839,7 @@ function_name <- function (argument_1, argument_2) {
 
 <br>
 
-#### *- Default value for variable*
+#### $\third{- Default value for variable}$
 
 ```{r eval=FALSE}
 function_name <- function (argument_1, argument_2 = default_value) {
@@ -805,17 +849,17 @@ function_name <- function (argument_1, argument_2 = default_value) {
 
 <br>
 
-#### *- Infinite variables*
+#### $\third{- Infinite variables}$
 
 ```{r eval=FALSE}
-function_name <- function(argument_1, ...) {
-  expression using argument_1 and any number of other arguments 
+function_name <- function(...) {
+  expression using ...
 }
 ```
 
 <br>
 
-#### *- Adding an error message*
+#### $\third{- Adding an error message}$
 
 ```{r eval=FALSE}
 function_name <- function(argument) {
@@ -828,7 +872,7 @@ function_name <- function(argument) {
 
 ***
 
-### **Applying**
+### $\second{Applying}$
 
 * `lapply` returns a list
 * `sapply` tries to return a simplified list as a vector or matrix
@@ -840,17 +884,25 @@ sapply(vector, existing_function)
 vapply(vector, existing_function, numeric(4))
 ```
 
+```{r}
+lapply(c(1, 2, 3), function(x){x + 1})
+```
+
 <br>
 
-#### *- Additional arguments* 
+#### $\third{- Additional arguments}$
 
 ```{r eval=FALSE}
 lapply(vector, existing_function, other_arguments)
 ```
 
+```{r}
+lapply(c(1, 2, 3), function(x, y){x^y}, 2)
+```
+
 <br>
 
-#### *- New function*
+#### $\third{- New function}$
 
 ```{r eval=FALSE}
 lapply(vector, function(argument){new_function expression})
@@ -858,7 +910,7 @@ lapply(vector, function(argument){new_function expression})
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png) 
 
-# **Regular Expressions**
+# $\first{Regular Expressions}$
 
 ***
 
@@ -868,9 +920,9 @@ lapply(vector, function(argument){new_function expression})
 
 ***
 
-### **Apply**
+### $\second{Apply}$
 
-#### *- Search*
+#### $\third{- Search}$
 
 * `grepl()` returns TRUE when a pattern is found in the corresponding character string.
 * `grep()` returns a vector of indices of the character strings that contains the pattern.
@@ -881,7 +933,7 @@ grep(regular_expression, search_location)
 
 <br>
 
-#### *- Replace*
+#### $\third{- Replace}$
 
 * `sub()` replaces the first match
 * `gsub()` replaces all matches
