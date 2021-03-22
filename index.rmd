@@ -3,6 +3,10 @@ title: Welcome!
 output: html_document
 ---
 
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/cat.gif)
 
 These are the codebooks I have created while learning to code.  
@@ -16,19 +20,31 @@ Feel free to use them and reach out with suggestions.
 
 <img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_r.png" width="500">
 
+# $\first{R}$
+
+### $\second{Basics}$
+
 [Basic R](r_basic.html)  
   
 [Dates: Lubridate](r_lubridate.html)
 
-[Visualization: Ggplot and Patchwork](r_visualization.html)
-
-[Visualization: Plot.ly](r_plotly.html)
-
-[Census: Tidycensus](r_census.html)
-
 [Tables: gt](r_gt.html)
 
-\newline
+### $\second{Visualization}$
+
+[Ggplot and Patchwork](r_visualization.html)
+
+[Plot.ly](r_plotly.html)
+
+### $\second{Geospatial}$
+
+[Spatial Data in R](r_spatial.html)
+
+Leaflet
+
+### $\second{Other}$
+
+[Census: Tidycensus](r_census.html)
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
 
