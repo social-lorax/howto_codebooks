@@ -40,7 +40,7 @@ Feel free to use them and reach out with suggestions.
 
 [Spatial Data in R](r_spatial.html)
 
-Leaflet
+[Leaflet](r_leaflet.html)
 
 ### $\second{Other}$
 

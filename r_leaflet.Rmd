@@ -1,0 +1,246 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
+
+library(tidyverse)
+library(tidycensus)
+library(sf)
+
+population <- get_acs(geography = "state",
+                      variables = c(population = "B01003_001"),
+                      year = 2019, 
+                      survey = "acs1",
+                      geometry = TRUE) %>% 
+  mutate(pretty_estimate = scales::comma(estimate),
+         legend_value = estimate / 1000000) %>% 
+  st_as_sf()
+
+data(quakes)
+  
+quakes <- quakes %>% head(20)
+
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/r_leaflet.png)
+
+```{r}
+library(leaflet)
+library(leafpop)
+library(leaflet.mapboxgl) # remotes::install_github("rstudio/leaflet.mapboxgl")
+```
+
+<br> 
+
+# $\first{Zoom}$
+
+Default
+
+```{r}
+leaflet() %>% addTiles() %>%
+  addMarkers(lng = -74.000060, lat = 40.730910)
+```
+
+<br>
+
+Far (zoom = 10)
+
+```{r}
+leaflet() %>% addTiles() %>%
+  setView(lng = -74.000060, lat = 40.730910, zoom = 10) %>% 
+  addMarkers(lng = -74.000060, lat = 40.730910)
+```
+
+<br> 
+
+Close (zoom = 100)
+
+```{r}
+leaflet() %>% addTiles() %>%
+  setView(lng = -74.000060, lat = 40.730910, zoom = 100) %>% 
+  addMarkers(lng = -74.000060, lat = 40.730910)
+```
+
+<br> 
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+<br> 
+
+
+# $\first{Markers}$
+
+***
+
+<br> 
+
+### $\second{Pinpoints}$
+
+```{r}
+quakes %>% 
+  leaflet() %>% addTiles() %>%
+  addMarkers(lng = ~long, lat = ~lat)
+```
+
+<br> 
+
+***
+
+<br> 
+
+### $\second{Colored Circles}$
+
+```{r}
+pal <- colorBin("viridis", domain = quakes$mag , bins = c(4,5,6,10))
+
+quakes %>% 
+  leaflet() %>% addTiles() %>%
+  addCircleMarkers(radius = 6,
+                   color = ~pal(mag),
+                   fillOpacity = 0.5,
+                   stroke = FALSE) %>% 
+  addLegend(pal = pal, 
+            values = ~mag, 
+            opacity = 0.7, 
+            title = "Magnitude",
+            position = "bottomright")
+```
+
+<br> 
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+<br> 
+
+# $\first{Labels}$
+
+***
+
+<br> 
+
+### $\second{Popups}$
+
+```{r}
+content <- paste(sep = "<br/>",
+                 "<b><a href='https://furmancenter.org/'>NYU Furman Center</a></b>",
+                 "139 MacDougal Street, 2nd floor",
+                 "New York, NY 10012")
+
+leaflet() %>% addTiles() %>%
+  addMarkers(lng = -74.000060, lat = 40.730910, 
+             popup = content)
+```
+
+<br> 
+
+### $\second{Hover Labels}$
+
+```{r}
+labels <- sprintf("Magnitude: %g",
+                  quakes$mag) %>% 
+  lapply(htmltools::HTML)
+
+quakes %>% 
+  leaflet() %>% 
+  addTiles() %>%
+  addCircleMarkers(radius = 6,
+                   color = ~pal(mag),
+                   fillOpacity = 0.5,
+                   stroke = FALSE,
+                   label = labels) %>% 
+  addLegend(pal = pal, 
+            values = ~mag, 
+            opacity = 0.7, 
+            title = "Magnitude",
+            position = "bottomright")
+
+```
+
+<br> 
+
+***
+
+<br> 
+
+### $\second{Formatting}$
+
+```{r}
+leaflet() %>% addTiles() %>% setView(-118.456554, 34.09, 13) %>%
+  addMarkers(lng = -118.456554, lat = 34.105,
+             label = "Default Label",
+             labelOptions = labelOptions(noHide = T)) %>%
+  addMarkers(lng = -118.456554, lat = 34.095,
+             label = "Label w/o surrounding box",
+             labelOptions = labelOptions(noHide = T, 
+                                         textOnly = TRUE)) %>%
+  addMarkers(lng = -118.456554, lat = 34.085,
+             label = "label w/ textsize 15px",
+             labelOptions = labelOptions(noHide = T, 
+                                         textsize = "15px")) %>%
+  addMarkers(lng = -118.456554, lat = 34.075,
+             label = "Label w/ custom CSS style",
+             labelOptions = labelOptions(noHide = T, 
+                                         direction = "bottom",
+                                         style = list("color" = "red",
+                                                      "font-family" = "serif",
+                                                      "font-style" = "italic",
+                                                      "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                      "font-size" = "12px",
+                                                      "border-color" = "rgba(0,0,0,0.5)")))
+
+```
+
+<br> 
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+<br> 
+
+# $\first{Polygons}$
+
+***
+
+<br> 
+
+```{r}
+pal <- colorBin("viridis", domain = population$legend_value)
+
+labels <- sprintf("<strong>%s</strong><br/>Population: %s",
+                  population$NAME, population$pretty_estimate) %>% lapply(htmltools::HTML)
+
+population %>% 
+  leaflet() %>% addTiles() %>% setView(-96, 37.8, 4) %>% 
+  addPolygons(fillColor = ~pal(legend_value),
+              fillOpacity = 0.7,
+              color = "white",
+              weight = 1,
+              opacity = 1,
+              smoothFactor = 0.5,
+              highlight = highlightOptions(weight = 5,
+                                           color = "white",
+                                           fillOpacity = 0.7,
+                                           bringToFront = TRUE),
+              label = labels,
+              labelOptions = labelOptions(style = list("font-weight" = "normal", 
+                                                       padding = "3px 8px"),
+                                          textsize = "15px",
+                                          direction = "auto")) %>% 
+  addLegend(pal = pal, 
+            values = ~legend_value, 
+            opacity = 0.7, 
+            title = "Population (Millions)",
+            position = "bottomright")
+```
