@@ -1,0 +1,1749 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
+```{r include=FALSE}
+knitr::opts_chunk$set(comment=NA, warning=FALSE, message=FALSE)
+```
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/logo_r.png?raw=true)
+
+<div align="center">
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/data-science.png?raw=true)
+
+<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/tidyverse.png?raw=true" height="250">
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/tidyverse_schema.png?raw=true)
+
+</div>
+
+```{r}
+library(tidyverse)
+library(gapminder) #example dataset
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# $\first{Import}$
+
+<a href="https://github.com/social-lorax/howto_codebooks/blob/master/cheatsheets/data-import.pdf" target="_blank">Import Cheatsheet</a>
+
+***
+
+### $\second{Equity}$
+
+* Where does this data come from?
+* Why was this data collected?
+* How was this data generated?
+* Is this data demographically representative?
+* Who is included and who is excluded from this data?
+* Whose voices, lives, and experiences are missing?
+* How much can this data be disaggregated by race, gender, ethnicity, etc.?
+* Are the categories mutually exclusive and fully inclusive? 
+* Are there "other" categories and, if so, who does that include?
+* Who stands to benefit from this data?
+* Who might be harmed by the collection or publication of this data?
+
+(See more in Urban Institute's [Do No Harm Guide](https://www.urban.org/research/publication/do-no-harm-guide-applying-equity-awareness-data-visualization/view/full_report))
+
+***
+
+### $\second{Tibbles}$
+
+Tibbles *are* data frames, but they tweak some older behaviors to make life a little easier:
+
+* Tibbles have a refined `print()` method that shows only the first 10 rows and all the columns that fit on screen.
+* Tibbles allow you to subset using `$` or `[[]]`.
+
+<br> 
+
+`as_tibble()` transforms existing data into a tibble
+
+```{r eval=FALSE}
+data %>% 
+  as_tibble()
+```
+
+<br> 
+
+`tibble()` creates a tibble from new data 
+
+```{r eval=FALSE}
+tibble(x = 1:5, 
+       y = 1, 
+       z = x ^ 2 + y)
+```
+
+***
+
+### $\second{Import}$
+
+#### $\third{- Basic Files}$ 
+
+`readr` (part of tidyverse) covers basics like csv files
+
+* `skip = n` skips the first `n` lines
+* `comment = "#"` drops all lines that start with (e.g.) `#`
+* `col_names = FALSE` tells read_csv() not to treat the first row as headings and instead label them from `X1` to `Xn`
+* `col_names = c("x", "y", "z")` renames the columns as the character vector 
+* `col_types = cols()` reads in the columns as the specified data type
+* `na = 999` replaces dataset-specific NA values (e.g., 999) as `NA`
+
+```{r eval = FALSE}
+read_csv("path/to/file.csv")
+
+read_rds("path/to/file.rds")
+
+read_delim("path/to/file.txt", delim = ";")
+```
+
+```{r eval = FALSE}
+#Best Practice
+csv_data <- read_csv("path/to/file.csv",
+                     col_types = cols(w = col_double(),
+                                      x = col_date(format = ""),
+                                      y = col_character(),
+                                      z = col_logical()))
+```
+
+<br>
+
+#### $\third{- Statistics Files}$ 
+
+`haven` reads SPSS, Stata, and SAS files
+
+```{r eval=FALSE}
+library(haven)
+
+read_sas("path/to/file.sas7bdat")
+
+read_spss("path/to/file.spv")
+
+read_stata("path/to/file.dta")
+```
+
+<br>
+
+#### $\third{- Excel Files}$ 
+
+`readxl` reads excel files (both .xls and .xlsx)
+
+```{r eval=FALSE}
+library(readxl)
+
+read_excel("path/to/file.xlsx")
+```
+
+<br>
+
+#### $\third{- Databases}$ 
+
+`DBI`, along with a database specific backend (e.g. RMySQL, RSQLite, RPostgreSQL etc), runs SQL queries (See [SQL](sql.html))
+
+```{r eval = FALSE}
+library(DBI)
+
+con <- "connection to database"
+
+dbGetQuery(con, "
+  
+  SELECT * 
+    FROM table
+           
+           ") %>% as_tibble()
+```
+
+<br>
+
+#### $\third{- JSON Files}$ 
+
+`jsonlite` reads json files 
+
+
+<br> 
+
+#### $\third{- XML Files}$ 
+
+`xml2` reads XML
+
+***
+
+### $\second{Export}$
+
+`write_csv()` exports a plain csv
+
+```{r eval=FALSE}
+write_csv(dataset, "path/dataset.csv")
+```
+
+<br> 
+
+`write_rds()` preserves formatting as an rds file 
+
+```{r eval=FALSE}
+write_rds(dataset, "path/dataset.rds")
+```
+
+***
+
+### $\second{Check}$
+
+#### $\third{- Contents}$ 
+
+`print()` (or just calling it) checks the size
+
+```{r eval = FALSE}
+gapminder
+```
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/explore_size.png?raw=true)
+
+<br> 
+
+`names()` gives a list of all of the columns
+
+```{r}
+gapminder %>% 
+  names()
+```
+<br>
+
+#### $\third{- Summary Statistics}$ 
+
+`summary()` gives basic stats on numeric columns, but I prefer this custom function
+
+```{r}
+col_summaries <- function(.data){
+  
+  all_cols <- .data %>% names()
+  
+  test_col <- function(.test_col){
+    test_data <- .data %>% 
+      as_tibble() %>%
+      rename(test = .test_col) %>% 
+      mutate_if(is.logical, as.character)
+    
+    if(dim(test_data %>% filter(!is.na(test)))[1] == 0){
+      test_data %>% 
+        summarize(column = .test_col,
+                  type = class(test_data$test),
+                  missing = sum(is.na(test)),
+                  unique_values = NA_real_,
+                  example = NA_character_,
+                  min = NA_real_,
+                  q25 = NA_real_,
+                  median = NA_real_,
+                  q75 = NA_real_,
+                  max = NA_real_)
+    } else if(class(test_data$test) %in% c("integer", "numeric")){
+      test_data %>% 
+        summarize(column = .test_col,
+                  type = class(test_data$test),
+                  missing = sum(is.na(test)),
+                  unique_values = NA_real_,
+                  example = NA_character_,
+                  min = min(test, na.rm = TRUE),
+                  q25 = quantile(test, 0.25, na.rm = TRUE),
+                  median = median(test, na.rm = TRUE),
+                  q75 = quantile(test, 0.75, na.rm = TRUE),
+                  max = max(test, na.rm = TRUE))
+    } else {
+      test_data %>% 
+        summarize(column = .test_col,
+                  type = class(test_data$test),
+                  missing = sum(is.na(test)),
+                  unique_values = n_distinct(test)) %>% 
+        bind_cols(test_data %>% 
+                    filter(!is.na(test)) %>% 
+                    select(test) %>% 
+                    head(1) %>% 
+                    rename(example = test)) %>% 
+        mutate(min = NA_real_,
+               q25 = NA_real_,
+               median = NA_real_,
+               q75 = NA_real_,
+               max = NA_real_ )
+      } 
+    }
+  
+  map_dfr(all_cols, test_col)
+}
+```
+
+```{r}
+gapminder %>%
+  col_summaries()
+```
+
+<br> 
+
+#### $\third{- Cross Tabs}$ 
+
+`table()` creates a cross tab count
+
+```{r}
+gap_07 <- gapminder %>% 
+  filter(year==2007) %>%
+  mutate(country_size = case_when(pop > 3.121e+07 ~ "large",
+                                  pop < 4.508e+06 ~ "small",
+                                  TRUE            ~ "average"),
+         country_size = factor(country_size, 
+                               ordered = TRUE, 
+                               levels = c("large", "average", "small")))
+
+table(gap_07$continent, gap_07$country_size)
+```
+<br> 
+
+#### $\third{- Frequency Tables}$ 
+
+`prop.table()` creates a frequency table, but I prefer this custom function for formatting 
+
+```{r}
+gap_07 <- gapminder %>% 
+  filter(year==2007) %>%
+  mutate(country_size = case_when(pop > 3.121e+07 ~ "large",
+                                  pop < 4.508e+06 ~ "small",
+                                  TRUE            ~ "average"),
+         country_size = factor(country_size, 
+                               ordered = TRUE, 
+                               levels = c("large", "average", "small")))
+
+size_table <- table(gap_07$continent, gap_07$country_size)
+
+props <- function(col1, col2, prop_type){
+  cross_tab <- table(col1, col2) 
+  
+  if(prop_type == "overall"){
+    prop.table(cross_tab) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      spread(col2, Freq) %>%
+      janitor::adorn_totals("col") %>% 
+      janitor::adorn_totals("row") %>% 
+      as_tibble() %>% 
+      mutate_at(vars(-col1), scales::percent, accuracy = 0.1) %>% 
+      rename(` ` = col1)
+  } else if(prop_type == "row"){
+    prop.table(cross_tab, 2) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      spread(col2, Freq) %>%
+      janitor::adorn_totals("row") %>% 
+      as_tibble() %>% 
+      mutate_at(vars(-col1), scales::percent, accuracy = 0.1) %>% 
+      rename(` ` = col1)
+  } else{
+    prop.table(cross_tab, 1) %>% 
+      as.data.frame() %>% 
+      as_tibble() %>% 
+      spread(col2, Freq) %>%
+      janitor::adorn_totals("col") %>% 
+      as_tibble() %>% 
+      mutate_at(vars(-col1), scales::percent, accuracy = 0.1) %>% 
+      rename(` ` = col1)
+  }
+}
+```
+
+```{r}
+#Overall Proportions
+props(gap_07$continent, gap_07$country_size, "overall")
+
+#Column Proportions
+props(gap_07$continent, gap_07$country_size, "col")
+
+#Row Proportions
+props(gap_07$continent, gap_07$country_size, "row")
+```
+
+<br>
+
+#### $\third{- Missing Values}$ 
+
+`na = ` or `recode()` sets what counts as missing
+
+```{r eval=FALSE}
+#When importing
+dataframe <- read_csv("datasource.csv", 
+                      na = c("", "NA", "UNKNOWN", 999))
+
+#When already read-in
+dateframe <- dataframe %>% 
+  mutate(char_col = recode(char_col, "NA" = NA_character_),
+         num_col = recode(num_col, 999 = NA_integer_))
+```
+
+<br>
+
+`any(is.na())` checks whether there are ANY missing values 
+
+```{r}
+#Overall
+any(is.na(gapminder))
+
+#In a specific column
+any(is.na(gapminder$lifeExp))
+```
+
+<br> 
+
+`summarize(sum(is.na()))` counts the missing values within each column
+
+```{r}
+gapminder %>% 
+  summarize(observations = n(),
+            missing_lifeExp = sum(is.na(lifeExp)))
+```
+
+```{r}
+expected <- c("Africa" = 54, 
+              "Americas" = 35, 
+              "Asia" = 47,
+              "Europe" = 43,
+              "Oceania" = 14)
+
+gapminder %>% 
+  filter(year == 2007) %>% 
+  group_by(continent) %>% 
+  summarize(countries_represented = n()) %>% 
+  mutate(countries_expected = expected[continent],
+         missing_countries = countries_expected - countries_represented)
+```
+
+<br> 
+
+`filter(!is.na())` removes entire rows with missing values in the specified column 
+
+```{r}
+gapminder %>% 
+  filter(!is.na(lifeExp)) %>% 
+  head()
+```
+
+<br> 
+
+`replace_na()` replaces missing values 
+
+```{r}
+gapminder %>% 
+  mutate(pop = replace_na(pop, 0)) %>% 
+  head()
+```
+
+<br>
+
+#### $\third{- Duplicates}$ 
+
+`distinct()` keeps unique rows and removes all others that are completely identical 
+
+```{r eval = FALSE}
+data %>% 
+  distinct()
+```
+
+<br>
+
+`distinct(col, .keep_all = TRUE)` (adding a column as an argument) just looks at the values within that column regardless of whether the other columns are the same (this will keep the first occurrence, so arrange as desired first)
+
+```{r eval = FALSE}
+data %>% 
+  distinct(col, .keep_all = TRUE)
+```
+
+```{r}
+#Most recent entry for each country
+gapminder %>% 
+  arrange(desc(year)) %>% 
+  distinct(country, .keep_all = TRUE) %>% 
+  head()
+```
+
+<br> 
+
+#### $\third{- Outliers}$ 
+
+Causes:
+
+* Valid measurements that happen to be extreme
+* Variability in measurement 
+* Experimental error
+* Data entry error
+
+```{r}
+boxplot(gap_07$pop)
+```
+
+All of the circles are technically outliers. We know that the two extremes (China and India) are, in fact, correct. If there was a third, that was that extreme, it would be an error that should be removed or replaced. Similarly, if there was a negative population, that would also be an error that should be removed or replaced. 
+
+<br> 
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# $\first{Tidy/Transform}$
+
+<a href="https://github.com/social-lorax/howto_codebooks/blob/master/cheatsheets/data-transformation.pdf" target="_blank">Transform Cheatsheet</a>
+
+***
+
+### $\second{Tidy Data}$
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/tidy1.png?raw=true)
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/tidy2.png?raw=true)
+
+<br> 
+
+#### $\third{- Gather}$
+
+```{r eval=FALSE}
+dataframe %>% 
+  gather(-c(cols to keep),
+         key = key name, 
+         value = value name, 
+         factor_key = TRUE)
+
+ratings %>% 
+  gather(-Season, 
+         key = Episode, 
+         value = Rating, 
+         factor_key = TRUE)
+```
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/gather.png?raw=true)
+
+<br> 
+
+#### $\third{- Spread}$
+
+```{r eval=FALSE}
+dataframe %>% 
+  spread(key = col to become new cols, 
+         value = col to become values under new cols, 
+         fill = value to for missing)
+
+roster %>% 
+  gather(key = Variable, 
+         value = Rating)
+```
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/spread.png?raw=true)
+
+***
+
+### $\second{Selecting}$
+
+#### $\third{- Filter (observations)}$
+
+`filter()` selects all observations (rows) with values matching the specification(s)
+
+|Code            |Meaning                         |
+|:---------------|:-------------------------------|
+|`==`            |Equal to                        |
+|`!=`            |Not equal to                    |
+|`>`             |Greater than                    | 
+|`>=`            |Greater than or equal to        | 
+|`<`             |Less than                       |
+|`<=`            |Less than or equal to           |
+|`%in% c()`      |Within the character vector     |
+|`!(. %in% c())` |Not within the character vector |
+|`is.na()`       |Is NA                           |
+|`!is.na()`      |Is not NA                       |
+|`between(x, y)` |Is between x and y              |
+|`,` or `&`      |And                             |
+|`|`             |Or                              |
+
+```{r}
+gapminder %>% 
+  filter(between(year, 2000, 2020),
+         !(continent %in% c("Africa", "Americas", "Asia")),
+         !is.na(gdpPercap)) %>% 
+  filter(lifeExp > 81 |
+         gdpPercap > 40000) %>% 
+  head()
+```
+
+<br> 
+
+#### $\third{- Select (variables)}$
+
+`select()` selects all variables (columns) called for 
+
+* `starts_with("abc")` selects columns that begin with “abc”
+* `ends_with("xyz")` selects columns that end with “xyz”
+* `contains("ijk")` selects columns that contain “ijk”
+* `matches("(.)\\1")` selects columns that match a regular expression
+* `everything()` selects everything else (useful for reorganizing columns)
+
+```{r}
+#Just
+gapminder %>% 
+  select(country, year, pop) %>% 
+  head()
+```
+
+```{r}
+#Not
+gapminder %>% 
+  select(-c(continent, pop)) %>% 
+  head()
+```
+
+```{r}
+#Range from this to that
+gapminder %>% 
+  select(continent:pop) %>% 
+  head()
+```
+
+***
+
+### $\second{Columns}$
+
+#### $\third{- Renaming}$
+
+`rename(new name = old name)` renames the column
+
+```{r}
+gapminder %>%
+  rename(population = pop) %>% 
+  head()
+```
+
+<br> 
+
+#### $\third{- Separating}$
+
+`separate()` splits each value within a column based on some separator 
+
+```{r}
+gapminder %>% 
+  separate(col = lifeExp, 
+           into = c("Years", "Months"), 
+           sep = "[.]") %>%
+  mutate(Months = as.double(str_c("0.", Months)) * 12) %>% 
+  head()
+```
+
+<br>
+
+#### $\third{- Uniting}$
+
+`unite()` merges the values or two columns into a new column, placing some separator between the values
+
+```{r}
+gapminder %>% 
+  unite(col = location, 
+        country, continent, 
+        sep = ", ") %>%
+  head()
+```
+
+***
+
+### $\second{Mutating}$
+
+`mutate()` adds columns to the existing dataframe
+
+```{r}
+gapminder %>% 
+  mutate(gdp = gdpPercap * as.double(pop)) %>% 
+  head()
+```
+
+<br> 
+
+`transmute()` adds columns and then only selects the specified columns
+
+```{r}
+gapminder %>% 
+  transmute(country, 
+            year, 
+            gdp = gdpPercap * as.double(pop)) %>% 
+  head()
+```
+
+<br>
+
+#### $\third{- Recasting}$
+
+* `as.character()`
+* `as.double()`
+* `as.integer()`
+* `as.logical()`
+
+```{r}
+gapminder %>% 
+  mutate(pop = as.double(pop)) %>% 
+  head()
+```
+
+<br> 
+
+#### $\third{- Factoring}$
+
+`factor()` recategorizes strings as categorical data; `ordered = TRUE` orders the categories by the `levels = c()` argument (otherwise it will be alphabetical)
+
+```{r}
+gapminder %>% 
+  mutate(country = factor(country),
+         continent = factor(continent, 
+                            ordered = TRUE,
+                            levels = c("Asia", "Americas", "Europe", "Africa", "Oceania"))) %>% 
+  head()
+```
+
+<br>
+
+#### $\third{- Cases}$
+
+`case_when()` creates a new field of categorical data (that still needs to be factored)
+
+```{r}
+ gapminder %>% 
+  filter(year == 2007) %>%
+  mutate(country_size = case_when(pop > 3.121e+07 ~ "Large",
+                                  pop < 4.508e+06 ~ "Small",
+                                  TRUE            ~ "Average"),
+         country_size = factor(country_size,
+                               ordered = TRUE,
+                               levels = c("Small", "Average", "Large"))) %>% 
+  head()
+```
+
+<br>
+
+#### $\third{- Recoding Values}$
+
+`recode(old value = new value)` replaces all occurrences of the old value with the new value
+
+```{r}
+ gapminder %>% 
+  mutate(continent = recode(continent, 
+                            "Asia" = "Asia & Pacific Islands",
+                            "Oceania" = "Australia & New Zealand")) %>% 
+  head()
+```
+
+<br>
+
+A lookup table recodes all values faster:
+
+```{r}
+library(hflights)
+
+hflights %>% 
+  count(UniqueCarrier) %>% 
+  arrange(desc(n)) %>% 
+  head(3)
+```
+
+```{r}
+airline_lookup_table <- c("AA" = "American",
+                          "AS" = "Alaska",
+                          "B6" = "JetBlue",
+                          "CO" = "Continental",
+                          "DL" = "Delta",
+                          "OO" = "SkyWest",
+                          "UA" = "United",
+                          "US" = "US_Airways", 
+                          "WN" = "Southwest", 
+                          "EV" = "Atlantic_Southeast", 
+                          "F9" = "Frontier", 
+                          "FL" = "AirTran", 
+                          "MQ" = "American_Eagle", 
+                          "XE" = "ExpressJet", 
+                          "YV" = "Mesa")
+
+hflights %>% 
+  mutate(UniqueCarrier = airline_lookup_table[UniqueCarrier]) %>%
+  count(UniqueCarrier) %>% 
+  arrange(desc(n)) %>% 
+  head(3)
+```
+
+<br> 
+
+#### $\third{- Arranged Analysis}$
+
+First order with `arrange()` and `arrange(desc())`
+
+```{r}
+gapminder %>% 
+  arrange(continent, 
+          desc(country)) %>% 
+  head()
+```
+
+<br>
+
+`lead()` and `lag()` pull the leading or lagging value
+
+```{r}
+gapminder %>% 
+  filter(country == "United States",
+         year > 1990) %>% 
+  arrange(year) %>% 
+  transmute(year,
+            gdpPercap,
+            prior_gdpPercap = lag(gdpPercap),
+            next_gdpPercap = lead(gdpPercap))
+```
+
+<br> 
+
+`cum_()` does a rolling analysis 
+
+```{r}
+gapminder %>% 
+  filter(country == "United States",
+         year > 1990) %>% 
+  arrange(year) %>% 
+  transmute(year,
+            gdpPercap,
+            rolling_sum = cumsum(gdpPercap), 
+            rolling_mean = cummean(gdpPercap), 
+            min_to_date = cummin(gdpPercap),
+            max_to_date = cummax(gdpPercap))
+```
+
+<br>
+
+#### $\third{- Universal Analysis}$
+
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  transmute(country,
+            continent,
+            lifeExp,
+            world_lifeExp = mean(lifeExp, na.rm = TRUE),
+            above_world_lifeExp = lifeExp > world_lifeExp,
+            pop) %>% 
+  arrange(desc(pop)) %>% 
+  head()
+```
+
+<br>
+
+#### $\third{- Rankings}$
+
+* `ntile()` categorizes the data into n even groups
+* `rank()` ranks the column
+
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  transmute(country,
+            continent,
+            lifeExp,
+            lifeExpQuantile = ntile(desc(lifeExp), 4),
+            lifeExpRank = rank(desc(lifeExp)),
+            pop) %>% 
+  arrange(desc(pop)) %>% 
+  head()
+```
+
+
+<br>
+
+#### $\third{- Row and Column Totals}$
+
+```{r}
+#Row total
+gapminder %>% 
+  filter(continent == "Oceania",
+         year > 1990) %>% 
+  select(country, year, pop) %>% 
+  spread(year, pop) %>% 
+  janitor::adorn_totals("col") %>% 
+  as_tibble()
+```
+
+```{r}
+#Column total
+gapminder %>% 
+  filter(continent == "Oceania",
+         year > 1990) %>% 
+  select(country, year, pop) %>% 
+  spread(year, pop) %>% 
+  janitor::adorn_totals("row") %>% 
+  as_tibble()
+```
+
+```{r}
+#Both totals
+gapminder %>% 
+  filter(continent == "Oceania",
+         year > 1990) %>% 
+  select(country, year, pop) %>% 
+  spread(year, pop) %>% 
+  janitor::adorn_totals("row") %>%
+  janitor::adorn_totals("col") %>%
+  as_tibble()
+```
+
+<br>
+
+#### $\third{- Grouped Analysis}$
+
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>%
+  transmute(country,
+            continent,
+            lifeExp,
+            overall_quartile = ntile(desc(lifeExp), 4)) %>% 
+  group_by(continent) %>% 
+  mutate(continent_quantile = ntile(desc(lifeExp), 4)) %>% 
+  ungroup() %>% 
+  arrange(continent) %>% 
+  head()
+```
+
+<br> 
+
+#### $\third{- Multiple Columns}$
+
+```{r}
+#All 
+gapminder %>% 
+  mutate_all(as.character) %>% 
+  head()
+```
+
+```{r}
+#All but
+gapminder %>% 
+  mutate_at(vars(-country, -continent), as.double) %>% 
+  head()
+```
+
+```{r}
+#Just
+gapminder %>% 
+  mutate_at(vars(lifeExp, gdpPercap), round, 1) %>% 
+  head()
+```
+
+```{r}
+#Like
+gapminder %>% 
+  mutate_at(vars(matches("gdp")), round, 1) %>% 
+  head()
+```
+
+```{r}
+#If
+gapminder %>% 
+  mutate_if(is.numeric, scales::comma, accuracy = 0.1) %>% 
+  head()
+```
+
+***
+
+### $\second{Summarizing}$
+
+`summarize()` groups and returns a single summary statistic
+
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  group_by(continent) %>% 
+  summarize(count = n(), 
+            missing = sum(is.na(lifeExp)),
+            unique_countries = n_distinct(country),
+            low_lifeExp = min(lifeExp, na.rm = TRUE),
+            high_lifeExp = max(lifeExp, na.rm = TRUE),
+            mean_lifeExp = mean(lifeExp, na.rm = TRUE),
+            median_lifeEx = median(lifeExp, na.rm = TRUE),
+            above_world_mean = sum(lifeExp > mean(gapminder %>% 
+                                                    filter(year == 2007) %>% 
+                                                    .$lifeExp,
+                                                  na.rm = TRUE)),
+            share_above_world_mean = above_world_mean / count) %>% 
+  ungroup()
+```
+
+***
+
+### $\second{Strings}$
+
+<a href="https://github.com/social-lorax/howto_codebooks/blob/master/cheatsheets/strings.pdf" target="_blank">Stringr Cheatsheet</a>
+
+<br> 
+
+#### $\third{- Trimming Spaces}$
+
+```{r}
+str_trim("  this is a test     ")
+```
+
+<br> 
+
+#### $\third{- Padding}$
+
+```{r}
+county_codes <- c("1", "51", "201")
+
+str_pad(county_codes, 
+        width = 3, 
+        side = "left", 
+        pad = "0")
+```
+
+<br>
+
+#### $\third{- Extract Number}$
+
+```{r}
+parse_number("$1,234,567")
+```
+
+<br>
+
+#### $\third{- Replace}$
+
+```{r}
+#Replace First
+str_replace("bananas","a","o")
+
+#Replace All
+str_replace_all("bananas","a","o")
+
+#Remove  First
+str_remove("bananas","a")
+
+#Remove All
+str_remove_all("bananas","a")
+```
+
+<br>
+
+#### $\third{- Capitalization}$
+
+```{r}
+text <- "nEw YoRk CiTy"
+
+#All Lower
+str_to_lower(text)
+
+#All Upper
+str_to_upper(text)
+
+#First Word Capitalized
+str_to_sentence(text)
+
+#All Words Capitalized
+str_to_title(text)
+```
+
+***
+
+### $\second{Dates}$
+
+<a href="https://github.com/social-lorax/howto_codebooks/blob/master/cheatsheets/lubridate.pdf" target="_blank">Lubridate Cheatsheet</a>
+
+```{r}
+library(lubridate)
+```
+
+<br> 
+
+A **date-time** is a point on the timeline stored as the number of sections since `1970-01-01 00:00:00 UTC`  
+```{r}
+as_datetime(1511870400) 
+```
+
+<br>
+
+A **date** is a point on the timeline stored as the number of days since `1970-01-01`  
+```{r}
+as_date(17498)
+```
+
+<br>
+
+A **time** is a point on the timeline stored as the number of seconds since `00:00:00`  
+```{r}
+hms::as_hms(10230)
+```
+
+<br>
+
+#### $\third{- Current}$
+
+`now()` returns the date-time 
+
+```{r}
+now()
+```
+
+<br> 
+
+`today()` returns the date 
+
+```{r}
+today()
+```
+
+<br>
+
+#### $\third{- Parsing}$
+
+The functions match the order of the components. For example, `08/07/06` could be: 
+
+* Aug 7, 2006 
+* Jul 8, 2006
+* Jul 6, 2008
+* Jun 7, 2008
+
+```{r}
+mdy("08/07/06")
+dmy("08/07/06")
+ymd("08/07/06")
+ydm("08/07/06")
+```
+
+<br>
+
+It also works for more complicated renderings like "The 4th of July, 2018"
+
+```{r}
+dmy("The 4th of July, 2018")
+```
+
+<br>
+
+And for time
+
+```{r}
+mdy_hms("08/07/06 10:09:30")
+```
+
+<br>
+
+For more complex strings, the format can be specified: 
+
+* `y` = year (2021 or 21, but defaults to current century)
+* `m` = numerical month (1-12 or 01-12)
+* `b` = month name (January or Jan)
+* `d` = day of the month (1-31 or 01-31)
+* `w` = numerical day of the week (0-6 with Sunday as 0)
+* `a` = day of the week name (Monday or Mon)
+
+* `_` = split between date and time 
+
+* `H` = 24 hour (0-24 or 00-24)
+* `I` = am/pm hour (1-12 or 01-12)
+* `p` = am or pm when using `I`
+* `M` = minute (0-59 or 00-59)
+* `s` = second (0-61 or 00-61)
+
+```{r}
+parse_date_time("Monday June 1st 2010 at 4pm", orders = "amdy_Ip")
+```
+
+<br> 
+
+#### $\third{- Time Zones}$
+
+`tz()` checks the timezone 
+
+```{r}
+tz(ymd_hms("2017-03-11 12:00:00"))
+```
+
+<br>
+
+`tz = ` sets the timezone
+
+```{r}
+ymd_hms("2017-03-11 12:00:00", tz = "America/Los_Angeles")
+```
+
+<br> 
+
+`force_tz()` changes an incorrect timezone (without changing the time value)
+
+```{r}
+force_tz(ymd_hms("2017-03-11 12:00:00"), tzone = "America/New_York")
+```
+
+<br> 
+
+`with_tz` converts to a new timezone (thus changing the time value)
+
+```{r}
+with_tz(ymd_hms("2017-03-11 12:00:00"), tzone = "America/New_York")
+```
+
+<br> 
+
+#### $\third{- Extracting Elements}$
+
+* `date()` = drops the time
+* `year()` = year
+* `month()` = month
+* `day()` = number day of the month
+* `wday()` = day of the week
+* `yday()` = number day of the year (1-365)
+* `hour()` = hour
+* `min()` = minute
+* `leap_year()` = true/false for leap year
+* `dst()` = true/false for daylight savings
+* `quarter()` = quarter of year
+* `semester()` = half of year
+
+* `label = TRUE` for word instead of number
+* `abbr = TRUE` for abbreviated word
+
+```{r} 
+str_c("Today is day ", day(today()),
+      " of the month of ", month(today(), label = TRUE, abbr = FALSE),
+      ", which is a ", wday(today(), label = TRUE, abbr = FALSE),
+      ". It is also day ", yday(today()), 
+      " of ", year(today()),
+      ".") 
+```
+
+<br> 
+
+#### $\third{- Rounding}$
+
+`round_date()` gives the nearest unit
+
+```{r}
+round_date(ymd("2021-06-30"), unit = "month")
+```
+
+<br> 
+
+`ceiling_date()` rounds up
+
+```{r}
+ceiling_date(ymd_hm("2021-06-30 12:50"), unit = "15 minutes")
+```
+
+<br>
+
+`floor_date()` rounds down
+
+```{r}
+floor_date(ymd_hm("2021-06-30 12:50"), unit = "hour")
+```
+
+<br> 
+
+#### $\third{- Adding Time}$
+
+Time does not behave normally. To evaluate, you must as which is more important: the datetime in the real world or the length of time?
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/r_date_math.png?raw=true)
+
+* `seconds()` / `dseconds()`
+* `minutes()` / `dminutes()`
+* `hours()` / `dhours()`
+* `days()` / `ddays()`
+* `weeks()` / `dweeks()`
+* `months()` / `dmonths()`
+* `years()` / `dyears()`
+
+```{r}
+normal_day <- ymd_hm("2018-01-01 24:00", tz = "America/New_York")
+
+period <- normal_day + hours(3)
+
+duration <- normal_day + dhours(3)
+```
+
+```{r echo=FALSE}
+tibble(Difference = difftime(period, duration, units = "hours"),
+       Period = period,
+       Duration = duration)
+```
+
+<br> 
+
+```{r}
+enter_daylight_savings <- ymd_hm("2018-03-10 24:00", tz = "America/New_York")
+
+period <- enter_daylight_savings + hours(3)
+
+duration <- enter_daylight_savings + dhours(3)
+```
+
+```{r echo=FALSE}
+tibble(Difference = difftime(period, duration, units = "hours"),
+       Period = period,
+       Duration = duration)
+```
+
+<br> 
+
+```{r}
+exit_daylight_savings <- ymd_hm("2018-11-03 24:00", tz = "America/New_York")
+
+period <- exit_daylight_savings + hours(3)
+
+duration <- exit_daylight_savings + dhours(3)
+```
+
+```{r echo=FALSE}
+tibble(Difference = difftime(period, duration, units = "hours"),
+       Period = period,
+       Duration = duration)
+```
+
+<br> 
+
+```{r}
+normal_year <- ymd("2018-09-20", tz = "America/New_York")
+
+period <- normal_year + years(1)
+
+duration <- normal_year + years(1)
+```
+
+```{r echo=FALSE}
+tibble(Difference = difftime(period, duration, units = "days"),
+       Period = period,
+       Duration = duration)
+```
+
+<br> 
+
+```{r}
+leap_year <- ymd("2019-09-20", tz = "America/New_York")
+
+period <- leap_year + years(1)
+
+duration <- leap_year + dyears(1)
+```
+
+```{r echo=FALSE}
+tibble(Difference = difftime(period, duration, units = "days"),
+       Period = period,
+       Duration = duration)
+```
+
+<br>
+
+For months, imaginary dates (e.g. Feb 31) need to be dealt with: 
+
+```{r}
+ymd("2019-1-31") + months(1)
+ymd("2019-1-31") %>% add_with_rollback(months(1))
+ymd("2019-1-31") %>% add_with_rollback(months(1), roll_to_first = TRUE)
+ymd("2019-1-31") + days(30)
+```
+
+<br> 
+
+#### $\third{- Difference Between Times}$
+
+`difftime()` measures the duration between two real datetimes 
+
+* `secs`
+* `mins`
+* `hours`
+* `days`
+* `weeks`
+
+```{r}
+#Normal Day
+difftime(ymd_hm("2018-01-02 03:00", tz = "America/New_York"),
+         ymd_hm("2018-01-01 24:00", tz = "America/New_York"), 
+         unit = "days")
+```
+
+```{r}
+#Enter Daylight Savings
+difftime(ymd_hm("2018-03-11 03:00", tz = "America/New_York"),
+         ymd_hm("2018-03-10 24:00", tz = "America/New_York"), 
+         unit = "days")
+```
+```{r}
+#Exit Daylight Savings
+difftime(ymd_hm("2018-11-04 03:00", tz = "America/New_York"),
+         ymd_hm("2018-11-03 24:00", tz = "America/New_York"), 
+         unit = "days")
+```
+
+<br> 
+
+#### $\third{- Intervals}$
+
+`interval()` creates an interval 
+
+```{r}
+ryan <- interval(ymd("1990-11-04"), today())
+ryan
+```
+
+<br> 
+
+`int_length()` measures the length
+
+```{r}
+int_length(ryan) %>% dseconds()
+```
+
+<br> 
+
+`int_shift()` modifies the interval 
+
+```{r}
+int_shift(ryan, days(5))
+```
+
+<br> 
+
+`%within%` determines if a date is within the interval
+
+```{r}
+the_90s <- interval(ymd("1990-01-01"), ymd("1999-12-31"))
+
+today() %within% the_90s
+```
+<br> 
+
+`int_overlaps()` determines if two intervals overlap
+
+```{r}
+the_1900s <- interval(ymd("1900-01-01"), ymd("1999-12-31"))
+
+the_90s %within% the_1900s
+the_1900s %within% the_90s
+int_overlaps(the_90s, the_1900s)
+```
+
+***
+
+### $\second{Combining Data}$
+
+#### $\third{- Joins}$
+
+* `inner_join()`
+* `full_join()`
+* `left_join()`
+* `right_join()`
+
+```{r eval=FALSE}
+# Basic
+joined_data <- data1 %>%
+  inner_join(data2, by = "common_col")
+
+# Multiple keys 
+joined_data <- data1 %>%
+  inner_join(data2, by = c("common_col1", "common_col2")
+
+# Key with different name
+joined_data <- data1 %>%
+  inner_join(data2, by = c("col from df1" = "col from df2"))
+```
+
+<br> 
+
+#### $\third{- Filter Joins}$
+
+```{r}
+sec_council <- tibble(country = c("United States", 
+                                  "United Kingdom", 
+                                  "France", 
+                                  "Russia", 
+                                  "China"))
+```
+
+<br> 
+
+`semi_join()` returns data from one dataset that is present in a second dataset
+
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  semi_join(sec_council, by = "country") 
+```
+
+<br> 
+
+`anti_join()` returns data from one dataset that is NOT present in a second dataset
+
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  anti_join(sec_council, by = "country") %>% 
+  head()
+```
+
+<br>
+
+#### $\third{- Binding}$
+
+```{r}
+df1 <- tibble("A" = c(1, 2, 3),
+              "B" = c(6, 5, 4))
+
+df2 <- tibble("A" = c(4, 5, 6),
+              "B" = c(3, 2, 1),
+              "C" = c("L", "M", "N"))
+
+df3 <- tibble("B" = c(4, 5, 6),
+              "C" = c("1", "2", "3"))
+```
+
+
+<br>
+
+`bind_rows()` tacks on new rows 
+
+```{r}
+df1 %>% 
+  bind_rows(df2)
+```
+
+<br>
+
+`bind_cols()` tacks on new columns 
+
+```{r}
+df1 %>% 
+  bind_cols(df3)
+```
+
+<br> 
+
+#### $\third{- Sets}$
+
+```{r}
+country_y <- gapminder %>% 
+  filter(year == 2007,
+         str_detect(str_to_lower(country), "y"))
+
+country_w <- gapminder %>% 
+  filter(year == 2007,
+         str_detect(str_to_lower(country), "w"))
+```
+
+<br> 
+
+`union()` returns all, removing duplicates 
+
+```{r}
+country_y %>% 
+  union(country_w) %>% 
+  head()
+```
+
+<br> 
+
+`intersect()` returns only observations in both 
+
+```{r}
+country_y %>% 
+  intersect(country_w)
+```
+
+<br> 
+
+`setdiff()` returns only observations in the first that are not in the second
+
+```{r eval=FALSE}
+country_y %>%
+  setdiff(country_w) %>% 
+  head()
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# $\first{Visualize}$
+
+***
+
+```{r}
+gapminder %>%
+  filter(year == 2007) %>%
+  ggplot(aes(lifeExp)) + 
+  geom_histogram()
+
+gapminder %>%
+  filter(year == 2007) %>%
+  ggplot(aes(lifeExp)) + 
+  geom_density()
+
+gapminder %>%
+  filter(year == 2007) %>%
+  ggplot(aes(lifeExp, gdpPercap)) + 
+  geom_point()
+
+gap_07 %>%
+  ggplot(aes(continent, fill = country_size)) +
+  geom_bar(position = "fill") +
+  ylab("Proportion")
+
+gap_07 %>%
+  ggplot(aes(country_size)) +
+  geom_bar() +
+  facet_wrap(~continent)
+
+gap_07 %>%
+  ggplot(aes(continent, lifeExp)) +
+  geom_boxplot()
+
+gapminder %>%
+  filter(year %in% c(1952, 2007)) %>%
+  ggplot(aes(x=lifeExp, y=gdpPercap)) +
+  geom_point() + 
+  geom_smooth(method="lm") + 
+  facet_grid(continent~year)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# $\first{Model}$
+
+***
+
+Correlation Table
+
+```{r}
+library(reshape2)
+
+get_pretty_cormap <- function (.data, .numcols) {
+  cormat <- round(cor(select(.data, .numcols)), 2)
+  
+  reorder_cormat <- function(cormat){
+    dd <- as.dist((1-cormat)/2)
+    hc <- hclust(dd)
+    cormat <-cormat[hc$order, hc$order]}
+  cormat <- reorder_cormat(cormat)
+  
+  get_upper_tri <- function(cormat){
+    cormat[lower.tri(cormat)]<- NA
+    return(cormat)}
+  upper_tri <- get_upper_tri(cormat)
+  
+  melted_cormat <- melt(upper_tri, na.rm = TRUE)
+  
+  ggplot(melted_cormat, aes(Var2, Var1, fill = value)) +
+    geom_tile(color = "white") +
+    scale_fill_gradient2(low = "blue", high = "red", mid = "white", midpoint = 0, limit = c(-1,1), 
+                         space = "Lab", name = "Pearson\nCorrelation") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, vjust = 1, size = 12, hjust = 1)) +
+    coord_fixed() +
+    geom_text(aes(Var2, Var1, label = value), color = "black", size = 4) +
+    theme(axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.border = element_blank(),
+          panel.background = element_blank(),
+          axis.ticks = element_blank(),
+          legend.justification = c(1, 0),
+          legend.position = c(0.6, 0.7),   
+          legend.direction = "horizontal") +
+    guides(fill = guide_colorbar(barwidth = 7, barheight = 1, title.position = "top", title.hjust = 0.5))}
+
+get_pretty_cormap(gapminder, c("year", "lifeExp", "pop", "gdpPercap"))
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# $\first{Communicate}$
+
+***
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+
+# $\first{Program}$
+
+***
+
+**Mapping**
+
+`map(.x, .f, ...)` maps function `.f` over data `.x` using `...` additional arguments  
+
+* If `.x` is a dataframe, `.f` is mapped over each column 
+* If `.x` is a list or vector, `.f` is mapped over each item
+  
+  
+`map()` returns a list  
+`map_dbl()` returns a double vector  
+`map_lgl()` returns a logical vector  
+`map_int()` returns an integer vector  
+`map_chr()` returns a character vector  
+  
+`map(.x, ~ sum(.)/2)` maps a function (sum(.x)/2) on the fly  
+  
+`map(.x, safely(.f))` prevents an error from ending the map function  
+  
+* `results <- map(.x, safely(.f))` (a list of value and error for each item in .x)
+* `values <- transpose(results)[["result"]]`  
+* `errors` <- transpose(results)[["error"]]  
+* `is_ok <- map_lgl(errors,is_null)
+* `success_results <- values[is_ok]` 
+* `proplem_inputs <- .x[!is_ok]`  
+
+```
+pmap(list(arg1 = list(1,2,3),
+          arg2 = list(4,5,6),
+          arg3 = list(7,8,9)), .f)
+```
+This evaluates f(1,4,7), f(2,5,8), and f(3,6,9)  
+  
+```
+invoke_map(list(f1,f2,f3), .x)
+invoke_map(list(f1 = .f1,f2 = .f2, f3 = .f3), list(f1 = list(f1 args), f2 = list(f2 args), f3 = list(f3 args)), .x)
+```
+This evaluates f1(.x), f2(.x), and f3(.x) 
+
+```{r}
+x <- c(1,2,3,NA_real_)
+funs <- list(Mean = "mean", Max = "max", Missing = "is.na")
+params <- list(Mean = list(na.rm = TRUE),
+                Max = list(na.rm = TRUE),
+                Missing = list())
+
+invoke_map(funs, params, x)
+```
+  
+`walk(.x, .f)` does the "side effect" (e.g. print, plot, save) instead of generating an outcome
+
+```{r}
+val1 <- list(gapminder$pop)
+val2 <- list(gapminder$lifeExp)
+val3 <- list(gapminder$gdpPercap)
+cols <- c(val1,val2,val3)
+
+find_breaks <- function(x){
+  rng <- range(x, na.rm = TRUE)
+  seq(rng[1], rng[2], length.out = 30)
+}
+
+nice_breaks <- map(cols, find_breaks)
+nice_titles <- c("Population", "Life Expectancy", "GDP Per Capita")
+
+pwalk(list(x = cols, breaks = nice_breaks, main = nice_titles), hist, xlab = "")
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# $\first{Resources}$
+
+<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/r4ds.png?raw=true" height="500">
+
+
+[Link to Book](https://r4ds.had.co.nz/)
