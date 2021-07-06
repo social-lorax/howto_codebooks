@@ -1,0 +1,460 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
+```{r include=FALSE}
+knitr::opts_chunk$set(comment=NA, warning=FALSE, message=FALSE)
+```
+
+
+[Return to R Page](index_r.html)
+
+<div align="center">
+
+<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/logos/r_modelr.png?raw=true" height="250">
+
+</div>
+
+**To Read**
+
+[An Introduction to Statistical Learning](https://www.statlearning.com/)
+[Statistical Modeling: A Fresh Approach](https://dtkaplan.github.io/SM2-bookdown/)
+
+
+```{r}
+library(tidyverse)
+library(modelr)
+options(na.action = na.warn)
+
+library(gapminder)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/model_types.png?raw=true)
+
+In **supervised** models, you first label some data (here "red" and "blue") and then the model is fit to predict those labels in new, unlabeled values. In **unsupervised** models, unlabeled data is entered and the model categorizes it (which can then be used for new values).
+
+# $\first{Supervised}$
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/model_supervised.png?raw=true)
+
+***
+
+### $\second{Linear Regression}$
+
+Linear models fit lines of  $y = mx + b$  where $m$ is the slope and $b$ is the intercept.
+
+<br>
+
+#### $\third{- Simple Regression}$
+
+```{r}
+sim1 %>% 
+  ggplot(aes(x = x, y = y)) + 
+  geom_point() 
+```
+
+```{r}
+#Equation values
+model1 <- lm(y ~ x, data = sim1)
+
+broom::tidy(model1)
+```
+
+```{r eval = FALSE}
+#Visualized
+sim1 %>% 
+  add_predictions(model1) %>% 
+  ggplot() + 
+  geom_point(aes(x = x, y = y)) + 
+  geom_line(aes(x = x, y = pred), color = "steelblue", size = 1)
+```
+
+```{r echo = FALSE}
+sim1 %>% 
+  add_predictions(model1) %>% 
+  ggplot() + 
+  geom_point(aes(x = x, y = y)) + 
+  geom_line(aes(x = x, y = pred), color = "steelblue", size = 1) + 
+  annotate("segment", x = 3, xend = 3, y = 7.36, yend = 10.377, color = "red") + 
+  annotate("text", x = 3.1, y = 9, label = "Error/Residual", size = 3.5, hjust = 0) 
+```
+
+How far away are the predictions from the observed values? (Note that the average of the residual will always be 0.)
+
+```{r}
+sim1 %>% 
+  add_residuals(model1) %>% 
+  ggplot(aes(resid)) + 
+  geom_freqpoly(binwidth = 0.5)
+```
+
+Are there any patterns in the distribution of the residuals, suggesting the model is better or worse at predicting certain ranges? 
+
+```{r}
+sim1 %>% 
+  add_residuals(model1) %>% 
+  ggplot(aes(x, resid)) + 
+  geom_ref_line(h = 0) +
+  geom_point() 
+```
+
+This looks like random noise, suggesting that this model has done a good job of capturing the patterns in the dataset.
+
+```{r}
+#Statistics
+broom::glance(model1)
+```
+
+<br>
+
+#### $\third{- Categorical Variables}$
+
+```{r}
+sim2 %>% 
+  ggplot(aes(x = x, y = y)) + 
+  geom_point() 
+```
+
+```{r}
+#Equation values
+model2 <- lm(y ~ x, data = sim2)
+
+broom::tidy(model2)
+```
+
+This essentially creates dummy variables where the coefficient is the mean of the variable. (Note that one value is dropped and its "coefficient" is the intercept; the other coefficients are in reference to this value.)
+
+```{r}
+#Visualized
+sim2 %>% 
+  add_predictions(model2) %>% 
+  ggplot() + 
+  geom_point(aes(x = x, y = y)) + 
+  geom_point(aes(x = x, y = pred), color = "red", size = 4)
+```
+
+How far away are the predictions from the observed values? (Note that the average of the residual will always be 0.)
+
+```{r}
+sim2 %>% 
+  add_residuals(model2) %>% 
+  ggplot(aes(resid)) + 
+  geom_freqpoly(binwidth = 0.5)
+```
+
+Are there any patterns in the distribution of the residuals, suggesting the model is better or worse at predicting certain ranges? 
+
+```{r}
+sim2 %>% 
+  add_residuals(model2) %>% 
+  ggplot(aes(x, resid)) + 
+  geom_ref_line(h = 0) +
+  geom_point() 
+```
+
+```{r}
+#Statistics
+broom::glance(model2)
+```
+
+<br> 
+
+#### $\third{- Multiple Variables}$
+
+Adding additional terms to the equation is as easy as `+`: 
+
+```{r}
+model_add <- lm(y ~ x1 + x2, data = sim4)
+
+broom::tidy(model_add)
+```
+
+<br>
+
+However, there could be an interaction between the variables that, if captured, woukd produce a more accurate model. Adding an additional term and an interaction between terms is done using `*`. (Note that `*` includes both `x1 * x2` as well as `x1 + x2`.)
+
+<br>
+
+*Continuous + Categorical*
+
+```{r}
+sim3 %>% 
+  ggplot(aes(x = x1, y = y, color = x2)) + 
+  geom_point() 
+```
+
+```{r}
+model_add <- lm(y ~ x1 + x2, data = sim3)
+
+broom::tidy(model_add)
+```
+
+```{r}
+model_interact <- lm(y ~ x1 * x2, data = sim3)
+
+broom::tidy(model_interact)
+```
+
+```{r}
+sim3 %>% 
+  gather_predictions(model_add, model_interact) %>% 
+  ggplot() + 
+  geom_point(aes(x = x1, y = y, color = x2)) + 
+  geom_line(aes(x = x1, y = pred, color = x2)) + 
+  facet_wrap(~model)
+```
+
+Note that the model that uses `+` has the same slope for each line, but different intercepts. The model that uses `*` has a different slope and intercept for each line.
+
+```{r}
+sim3 %>% 
+  gather_residuals(model_add, model_interact) %>%
+  ggplot(aes(x = x1, y = resid, color = x2)) + 
+  geom_ref_line(h = 0) +
+  geom_point() + 
+  facet_grid(model ~ x2)
+```
+
+The residuals for the simple addition model are non-random whereas the interaction model seems more randomly distributed. The interaction model is likely the better model here.
+
+```{r}
+#Statistics
+broom::glance(model_add) %>% 
+  bind_rows(broom::glance(model_interact)) %>% 
+  mutate(model = c("model_add", "model_interact")) %>% 
+  select(model, everything())
+```
+
+<br> 
+
+*Continuous + Continuous*
+
+```{r}
+sim4 %>% 
+  ggplot(aes(x = x1, y = y, color = x2)) + 
+  geom_point() +
+  scale_color_viridis_c()
+```
+
+```{r}
+model_add <- lm(y ~ x1 + x2, data = sim4)
+
+broom::tidy(model_add)
+```
+
+```{r}
+model_interact <- lm(y ~ x1 * x2, data = sim4)
+
+broom::tidy(model_interact)
+```
+
+```{r}
+sim4 %>%
+  gather_predictions(model_add, model_interact) %>% 
+  ggplot(aes(x1, pred, colour = x2, group = x2)) + 
+  geom_line() +
+  facet_wrap(~ model) + 
+  scale_color_viridis_c()
+```
+
+```{r}
+sim4 %>%
+  gather_predictions(model_add, model_interact) %>% 
+  ggplot(aes(x2, pred, colour = x1, group = x1)) + 
+  geom_line() +
+  facet_wrap(~ model) + 
+  scale_color_viridis_c()
+```
+
+Create a grid of combinations from the min to the max of each x variable (if desired you can also trim a certain percent, e.g. `trim = 0.1`, or expand beyond the min/min, e.g. `expand = 0.1`) :
+
+```{r}
+sim4 %>% 
+  data_grid(x1 = seq_range(x1, n = 5, pretty = TRUE), 
+            x2 = seq_range(x2, n = 5, pretty = TRUE)) %>% 
+  gather_predictions(model_add, model_interact) %>% 
+  ggplot(aes(x1, x2)) + 
+  geom_tile(aes(fill = pred)) + 
+  facet_wrap(~ model) + 
+  scale_fill_viridis_c()
+```
+
+```{r}
+sim4 %>% 
+  gather_residuals(model_add, model_interact) %>%
+  mutate(x2_quarter = ntile(x2, 4) %>% factor()) %>% 
+  ggplot(aes(x = x1, y = resid, color = x2_quarter)) + 
+  geom_ref_line(h = 0) +
+  geom_point() + 
+  facet_grid(model ~ x2_quarter)
+```
+
+```{r}
+sim4 %>% 
+  gather_residuals(model_add, model_interact) %>%
+  mutate(x1_quarter = ntile(x1, 4) %>% factor()) %>% 
+  ggplot(aes(x = x2, y = resid, color = x1_quarter)) + 
+  geom_ref_line(h = 0) +
+  geom_point() + 
+  facet_grid(model ~ x1_quarter)
+```
+
+The difference in distributions here is subtle, though the interaction model is slightly better. 
+
+```{r}
+#Statistics
+broom::glance(model_add) %>% 
+  bind_rows(broom::glance(model_interact)) %>% 
+  mutate(model = c("model_add", "model_interact")) %>% 
+  select(model, everything())
+```
+
+<br> 
+
+#### $\third{- Transformations}$
+
+It's possible to transform elements of the equation directly in the call using: 
+
+* `log()`
+* `sqrt()`
+* `I(x ^ n)`
+
+```{r eval = FALSE}
+lm(log(y) ~ sqrt(x1) + I(x2 ^ 2), data = sim4)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# $\first{Unsupervised}$
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/model_unsupervised.png?raw=true)
+
+***
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+# $\first{Multiple Models}$
+
+***
+
+```{r}
+gapminder %>% 
+  ggplot(aes(x = year, y = lifeExp, group = country)) +
+  geom_line(alpha = 0.33)
+```
+
+Analysis of a single country: 
+
+```{r}
+us <- gapminder %>% 
+  filter(country == "United States")
+
+us_mod <- lm(lifeExp ~ year, data = us)
+
+broom::tidy(us_mod)
+```
+
+```{r}
+us %>% 
+  add_predictions(us_mod) %>% 
+  add_residuals(us_mod) %>% 
+  select(year, lifeExp, pred, resid) %>% 
+  gather(-year, key = model, value = value) %>% 
+  mutate(model = recode(model, 
+                        "lifeExp" = "Full Data =",
+                        "pred" = "Linear Trend +",
+                        "resid" = "Remaining Pattern")) %>% 
+  ggplot(aes(x = year, y = value)) + 
+  geom_line() + 
+  facet_wrap(~ model, scales = "free_y")
+```
+
+Nest by country to run the model for each. (This produces a dataframe with a row for each group, country, and a column with the data.)
+
+```{r}
+by_country <- gapminder %>% 
+  group_by(country, continent) %>% 
+  nest()
+
+by_country %>% (head)
+
+by_country$data[[1]] %>% head()
+```
+
+Fit the model: 
+
+```{r}
+country_model <- function(df) {
+  lm(lifeExp ~ year, data = df)
+}
+
+by_country <- by_country %>% 
+  mutate(model = map(data, country_model),
+         preds = map2(data, model, add_predictions),
+         resids = map2(data, model, add_residuals))
+
+by_country$model[[1]]
+```
+
+Unnest the findings: 
+
+```{r}
+by_country %>% 
+  unnest(c(country, resids)) %>% 
+  ggplot(aes(year, resid, group = country)) +
+    geom_line(alpha = 1 / 3) + 
+    facet_wrap(~continent)
+```
+
+It looks like we’ve missed some mild patterns. There’s also something interesting going on in Africa: we see some very large residuals which suggests our model isn’t fitting so well there.
+
+```{r}
+#Statistics
+stats_by_country <- by_country %>% 
+  mutate(glance = map(model, broom::glance)) %>% 
+  unnest(glance)
+
+stats_by_country %>% 
+  head()
+```
+
+Check on the worst performing models: 
+
+```{r}
+stats_by_country %>% 
+  ggplot(aes(x = continent, y = r.squared)) + 
+  geom_jitter(width = 0.1)
+```
+
+```{r}
+stats_by_country %>%
+  filter(r.squared < 0.1) %>% 
+  arrange(r.squared)
+```
+
+```{r}
+gapminder %>% 
+  semi_join(stats_by_country %>%
+              filter(r.squared < 0.1),
+            by = "country") %>%
+  ggplot(aes(x = year, y = lifeExp, color = country)) +
+  geom_line()
+```
+We see two main effects here: the tragedies of the HIV/AIDS epidemic and the Rwandan genocide.
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+
+[Return to R Page](index_r.html)

@@ -1,62 +1,49 @@
 ---
-title: Welcome!
-output: html_document
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
 ---
 
 \newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
 \newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
 \newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
 
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/cat.gif)
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/main_cat.gif?raw=true)
 
 These are the codebooks I have created while learning to code.  
-Feel free to use them and reach out with suggestions.
+Feel free to use them and reach out with suggestions - ryan.m.brenner@gmail.com.
 
-<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/sql.png" width="500">
-  
-[SQL](sql.html)
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
 
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
+# $\first{Data Analysis}$
 
-<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_r.png" width="500">
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/head_analysis.png?raw=true)
 
-# $\first{R}$
+### [R](index_r.html)
 
-### $\second{Basics}$
+### Python
 
-[Basic R](r_basic.html)  
-  
-[Dates: Lubridate](r_lubridate.html)
+### [SQL](sql.html)
 
-[Tables: gt](r_gt.html)
+### [XML](xml.html)  
 
-### $\second{Visualization}$
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
 
-[Ggplot and Patchwork](r_visualization.html)
+# $\first{Geospatial Analysis}$
 
-[Plot.ly](r_plotly.html)
+<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/index/head_geospatial.png?raw=true" width="500">
 
-### $\second{Geospatial}$
+[Spatial Data](spatial.html)
 
-[Spatial Data in R](r_spatial.html)
+ArcGIS/QGIS
 
-[Leaflet](r_leaflet.html)
+[R(ggplot/leaflet)](r_spatial.html)
 
-### $\second{Other}$
+Python
 
-[Census: Tidycensus](r_census.html)
-
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
-
-<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_python.png" width="500">
-
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
-
-<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logo_kaggle.png" width="500">
-
-[Model Evaluation](K.1_Model_Eval_.html)
-
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_main.gif)
-[XML](xml.html)  
-  
-[R Markdown](markdown.html)
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
