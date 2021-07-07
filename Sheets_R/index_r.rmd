@@ -53,6 +53,8 @@ output:
 
 # $\first{Model}$
 
+[modelr](r_model.html)
+
 ![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
 
 # $\first{Communicate}$
