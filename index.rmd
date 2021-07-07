@@ -26,7 +26,7 @@ Feel free to use them and reach out with suggestions - ryan.m.brenner@gmail.com.
 
 ### [R](index_r.html)
 
-### Python
+### [Python](index_py.html)
 
 ### [SQL](sql.html)
 

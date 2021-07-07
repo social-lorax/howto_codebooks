@@ -790,9 +790,17 @@ lapply(c(1, 2, 3), function(x, y){x/(x^y)}, 2)
 
 # $\first{Regular Expressions}$
 
-***
+****
 
-### [**Test**](https://regexr.com/)
+### $\second{Basics}$
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/regex.png)
+
+****
+
+### $\second{Testing}$
+
+[**regexr**](https://regexr.com/)
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/regex_test.jpg)
 
@@ -805,8 +813,14 @@ lapply(c(1, 2, 3), function(x, y){x/(x^y)}, 2)
 * `grepl()` returns TRUE when a pattern is found in the corresponding character string.
 * `grep()` returns a vector of indices of the character strings that contains the pattern.
 
-```{r eval=FALSE}
-grep(regular_expression, search_location)
+```{r}
+eg_text <- c("123 Main Street, Anytown, Any State, 12345, United States",
+             "This is not an address",
+             "567 Country Road, Notown, Any State, 54321, United States")
+
+grepl("[0-9]+ [a-zA-Z]+ [a-zA-Z]+, [a-zA-Z]+, [a-zA-Z]+ [a-zA-Z]+, [0-9]+, United States", eg_text)
+
+grep("[0-9]+ [a-zA-Z]+ [a-zA-Z]+, [a-zA-Z]+, [a-zA-Z]+ [a-zA-Z]+, [0-9]+, United States", eg_text)
 ```
 
 <br>
@@ -816,8 +830,12 @@ grep(regular_expression, search_location)
 * `sub()` replaces the first match
 * `gsub()` replaces all matches
 
-```{r eval=FALSE}
-gep(regular_expression, replace_value, search_location)
+```{r}
+eg_text <- "This 123 has 456 random 789 numbers"
+
+sub("[0-9]+", "", eg_text)
+
+gsub("[0-9]+", "", eg_text)
 ```
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)

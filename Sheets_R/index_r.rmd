@@ -65,4 +65,13 @@ output:
 
 ![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
 
+# $\first{Resources}$
+
+<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/r4ds/r4ds.png?raw=true" height="500">
+
+
+[Link to Book](https://r4ds.had.co.nz/)
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
+
 [Return to Main Page](index.html)
