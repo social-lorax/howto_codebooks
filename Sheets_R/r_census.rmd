@@ -1,0 +1,607 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE, results='hide')
+
+options(scipen=999)
+```
+
+[Return to R Page](index_r.html)
+
+<div align="center">
+
+<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/logos/r_tidycensus.png?raw=true" height="250"> <img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/logos/r_tigris.png?raw=true" height="250"> 
+
+</div>
+
+```{r eval=FALSE}
+library(tidyverse)
+library(tidycensus)
+
+census_api_key("YOUR API KEY GOES HERE")
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+library(tidycensus)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
+
+# $\first{Finding Data}$
+
+****
+
+### $\second{Dataset}$
+
+The Census Bureau only released APIs for the following time frames:
+
+`get_acs()`
+
+* American Community Survey 1-Year Data (2005-2019)
+* American Community Survey 3 Year Data (2007-2013)
+* American Community Survey 5-Year Data (2009-2019)
+
+`get_decennial()`
+
+* Decennial US Census (1990, 2000, 2010)
+
+****
+
+### $\second{Geograpghic Scale}$
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/censusareas.jpg)
+
+|Geography|Definition|
+|---------|----------|
+|`us`|<span style="color:red">*ACS only*.</span> United States|
+|`region`|<span style="color:red">*ACS only*.</span> Census regions are groupings of states and the District of Columbia that subdivide the United States for the presentation of census data. The Census Bureau defines four census regions and identifies each one with a single-digit census code- Northeast (1), Midwest (2), South (3), and West (4). Puerto Rico and the Island Areas are not part of any census region. <img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/region.png" width="500">|
+|`division`|<span style="color:red">*ACS only*.</span> Census divisions are groupings of states and the District of Columbia that subdivide the census regions for the presentation of census data. The Census Bureau defines nine census divisions and identifies each one with a single-digit census code- New England (1), Middle Atlantic (2), East North Central (3), West North Central (4), South Atlantic (5), East South Central (6), West South Central (7), Mountain (8), and Pacific (9). Puerto Rico and the Island Areas are not part of any census division. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/division.png)|
+|`state`|States and equivalent entities are the primary governmental divisions of the United States. In addition to the 50 states, the Census Bureau treats the District of Columbia, Puerto Rico, American Samoa, the Commonwealth of the Northern Mariana Islands, Guam, and the U.S. Virgin Islands as the statistical equivalents of states for the purpose of data presentation. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/state.png)|
+|`county`|Counties and their equivalents are the primary division of states providing complete coverage of a state. In most states, counties are the primary legal division. Louisiana has parishes; Alaska has boroughs, city and boroughs, municipalities, and census subareas; Maryland, Missouri, Nevada, and Virginia have independent cities in addition to counties; Puerto Rico has municipios; American Samoa has districts and island; the Commonwealth of the Northern Mariana Islands have municipalities; the U.S. Virgin Islands have islands; and the District of Columbia and Guam are also county equivalents. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/county.png)|
+|`county subdivision`|County subdivisions are the primary divisions of counties and statistical equivalent entities. They are either legal entities (minor civil divisions) or statistical entities (census county divisions, census subareas, and unorganized territories). The two main types of county subdivisions are minor civil divisions (MCD) and census county divisions (CCD). MCDs are legal entities that provide governmental and/or administrative services, and are most commonly known as towns and townships. CCDs are statistical entities established cooperatively by the Census Bureau and state and local officials. Census subareas occur only in Alaska and unorganized territories (UT) are defined by the Census Bureau for areas where portions of counties, or equivalent entities, are not already included in an MCD. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/countysub.png)|
+|`tract` *(must include state)*|Census tracts are small, relatively permanent statistical subdivisions of a county or county equivalent and generally have a population size between 1,200 and 8,000 people, with an optimum size of 4,000 people. The Census Bureau created census tracts to provide a stable set of boundaries for statistical comparison from census to census. Census tracts occasionally split due to population growth or merge when there is substantial population decline. Local governments have the opportunity to review census tract boundaries prior to each decennial census through the Participants Statistical Areas Program. In general, census tracts can either merge or split based on population changes but cannot be completely changed in order to maintain data comparability over time. If a local participant is not available, the Census Bureau will update the boundaries. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/tract.png)|
+|`block group` *(must include state)*|Block groups are statistical divisions of census tracts and generally contain between 600 and 3,000 people. Local participants delineate most block groups prior to each decennial census through the Participant Statistical Areas Program. If a local participant is not available, the Census Bureau will define them. Since block groups consist of a cluster of census blocks, they control block numbering. At the time of block delineation, all of the blocks that fall within a block group will start with the same number. For example, census blocks 2001, 2002, 2003, … 2999 in census tract 1310.02 belong to block group 2. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/blockgroup.png)|
+|`block` *(must include state and county)*|<span style="color:red">*Decennial only*.</span> Census Blocks are the smallest geographic areas that the Census Bureau uses to tabulate decennial data. Blocks are statistical areas bounded by visible features, such as streets, roads, streams, and railroad tracks, and by nonvisible boundaries, such as selected property lines and city, township, school district, and county limits. Generally, census blocks are small in area; for example, a block in a city bounded on all sides by streets. Census blocks cover the entire territory of the United States, Puerto Rico, and the Island Areas. Census blocks nest within all other tabulated census geographic entities and are the basis for all tabulated data. Blocks are defined once a decade and data are available only from the decennial census 100% data (age, sex, race, Hispanic/Latino origin, relationship to householder, and own/rent house). In between decennial censuses, blocks may split due to boundary changes but these blocks do not have any statistical data associated with them available. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/block.png)|
+|`place`|The Census Bureau identifies two types of places; incorporated places and census designated places (CDP). Incorporated places are legal areas and provide governmental functions for a concentration of people. They are usually cities, towns, villages, or boroughs. CDPs are statistical areas delineated to provide data for a settled community, or concentration of population, identifiable by name but not legally incorporated. There is no minimum population threshold for a CDP and they are delineated with the help of local governments, through the Participant Statistical Areas Program, usually once a decade. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/place.png)|
+|`metropolitan statistical area/` \n`micropolitan statistical area`|The Office of Management and Budget (OMB) defines metropolitan and micropolitan statistical areas, collectively known as core based statistical areas (CBSA), based on data from the decennial census and commuting data from the American Community Survey. Each metropolitan or micropolitan area consists of one or more whole counties and includes the counties containing the core urban area, as well as any adjacent counties that have a high degree of social and economic integration (as measured by commuting to work) with the urban core. Metropolitan statistical areas are based on urbanized areas of 50,000 or more people and micropolitan statistical areas are based on urban clusters of at least 10,000 but less than 50,000 people. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/metro_micro.png)|
+|`combined statistical area`|<span style="color:red">*ACS only*.</span> Combined statistical areas (CSA) consist of two or more adjacent metropolitan and micropolitan statistical areas that have substantial employment interchange. The metropolitan and micropolitan statistical areas that combine to create a CSA retain separate identities within the larger CSA. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/combinedstatarea.png)|
+|`urban area`|<span style="color:red">*ACS only*.</span> Urban Area is the term for urbanized areas (UAs) and urban clusters (UCs). UAs consist of densely developed area that contains 50,000 or more people. UCs consist of densely developed area that has a least 2,500 people but fewer than 50,000 people. The Census Bureau defines urban areas once a decade after the population totals for the decennial census are available, and classifies all territory, population, and housing units located within a UA or UC as urban and all area outside of a UA or UC as rural. Urban areas are used as the cores on which core based statistical areas are defined. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/urbanarea.png)|
+|`congressional district`|Congressional districts are electoral districts that elect a single member of congress to the House of Representatives. There are 435 congressional districts in the U.S. and the Census Bureau’s decennial census counts determine the number of congressional districts given to each state. The District of Columbia, Puerto Rico, and each Island Area (American Samoa, Guam, Northern Mariana Islands, and U.S. Virgin Islands) are assigned one nonvoting delegate each. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/congressionaldist.png)|
+|`public use microdata area`|<span style="color:red">*ACS only*.</span> Public use microdata areas (PUMAs) are geographic areas defined to be used with public use microdata sample (PUMS) files. PUMAs are a collection of counties or tracts within counties with more than 100,000 people, based on the decennial census population counts. State partners define PUMAs once a decade after the decennial census. Data for PUMAs are available from the American Community Survey (ACS). PUMS files are available from the ACS and decennial census. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/PUMA.png)|
+|`zip code tabulation area`|ZIP Code® tabulation areas (ZCTAs) are generalized areal representations of U.S. Postal Service (USPS) ZIP Code service areas. The Census Bureau collects ZIP Code data for housing units and many non-residential addresses from the USPS and from various field operations. Based on this ZIP Code data, the Census Bureau aggregates census blocks with the same ZIP Code to form ZCTAs. The Census Bureau then labels each ZCTA with the five-digit ZIP Code number used by the USPS. ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/ZCTA.png)|
+
+<br>
+
+#### $\third{- State FIPS}$ 
+
+|State|Code|State|Code|State|Code|State|Code|
+|:----|:---|:----|:---|:----|:---|:----|:---|
+|Alabama|01|Alaska|02|Arizona|04|Arkansas|05|
+|California|06|Colorado|08|Connecticut|09|Delaware|10|
+|District of Columbia|11|Florida|12|Georgia|13|Hawaii|15|
+|Idaho|16|Illinois|17|Indiana|18|Iowa|19|
+|Kansas|20|Kentucky|21|Louisiana|22|Maine|23|
+|Maryland|24|Massachusetts|25|Michigan|26|Minnesota|27|
+|Mississippi|28|Missouri|29|Montana|30|Nebraska|31|
+|Nevada|32|New Hampshire|33|New Jersey|34|New Mexico|35|
+|New York|36|North Carolina|37|North Dakota|38|Ohio|39|
+|Oklahoma|40|Oregon|41|Pennsylvania|42|Rhode Island|44|
+|South Carolina|45|South Dakota|46|Tennessee|47|Texas|48|
+|Utah|49|Vermont|50|Virginia|51|Washington|53|
+|West Virginia|54|Wisconsin|55|Wyoming|56|American Samoa|60|
+|Guam|66|Northern Mariana Islands|69|Puerto Rico|72|U.S. Minor Outlying Islands|74|
+|U.S. Virgin Islands|78|**All States + DC**|`1:56`|**All State - DC**|`1:10, 12:56`|
+
+<br>
+
+#### $\third{- County FIPS}$ 
+
+|County      |Borough       |Code |
+|:-----------|:-------------|:----|
+|Bronx       |Bronx         |005  |
+|Kings       |Brooklyn      |047  |
+|New York    |Manhattan     |061  |
+|Queens      |Queens        |081  |
+|Richmond    |Staten Island |085  |
+|            |              |     |
+|Westchester |              |119  |
+|Nassau      |              |059  |
+|Suffolk     |              |103  |
+
+<br> 
+
+#### $\third{- NYC Place FIPS}$ 
+
+3651000
+
+<br>
+
+#### $\third{- Census Tract Numbers}$ 
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/censusnum.jpg)
+
+****
+
+### $\second{Variables}$
+
+#### $\third{- ACS Tables}$ 
+
+Census tables have numbers like "B01001A". Each element provides information on the data contained within the table. 
+
+**Element 1:** Type of Table 
+
+|Code|Title|Definition|
+|:---|:----|:---------|
+|B|Detailed Base Table|Most detailed estimates on all topics for all geographies|
+|C|Detailed Collapsed Table|Similar information from its corresponding Base Table (B) but at a lower level of detail because one or more lines in the Base Table have been grouped together|
+|K20|Supplemental Table|The only source of 1-year statistics for selected geographies with populations of 20,000-64,999|
+|S|Subject Table|A span of information on a particular ACS subject, such as veterans, presented in the format of both estimates and percentages|
+|R|Ranking Table|State rankings across approximately 90 key variables|
+|GCT|Geographic Comparison Table|Comparisons across approximately 95 key variables for geographies other than states such as counties or congressional districts|
+|DP|Data Profile|Broad social, economic, housing, and demographic information in a total of four profiles|
+|NP|Narrative Profile|Summaries of information in the Data Profiles using nontechnical text|
+|CP|Comparison Profile|Comparisons of ACS estimates over time in the same layout as the Data Profiles|
+|S0201|Selected Population Profile| Broad ACS statistics for population subgroups by race, ethnicity, ancestry, tribal affiliation, and place of birth|
+
+<br>
+
+**Element 2:** Subject (B, C, K20, S, R, and GCT Tables Only)
+
+|Code|Subject|
+|:---|:------|
+|01|Age; Sex|
+|02|Race|
+|03|Hispanic or Latino Origin|
+|04|Ancestry|
+|05|Citizenship Status; Year of Entry; Foreign Born Place of Birth|
+|06|Place of Birth|
+|07|Migration/Residence 1 Year Ago|
+|08|Commuting (Journey to Work); Place of Work|
+|09|Relationship to Householder|
+|10|Grandparents and Grandchildren Characteristics|
+|11|Household Type; Family Type; Subfamilies|
+|12|Marital Status; Marital History|
+|13|Fertility|
+|14|School Enrollment|
+|15|Educational Attainment; Undergraduate Field of Degree|
+|16|Language Spoken at Home|
+|17|Poverty Status|
+|18|Disability Status|
+|19|Income|
+|20|Earnings|
+|21|Veteran Status; Period of Military Service|
+|22|Food Stamps/Supplemental Nutrition Assistance Program (SNAP)|
+|23|Employment Status; Work Status Last Year|
+|24|Industry, Occupation, and Class of Worker|
+|25|Housing Characteristics|
+|26|Group Quarters|
+|27|Health Insurance Coverage|
+|28|Computer and Internet Use|
+|29|Citizen Voting-Age Population|
+|98|Quality Measures|
+|99|Allocation Table for Any Subject|
+
+<br>
+
+**Element 3:** Table Number within a Subject 
+
+A 2-3 digit number that uniquely identifies the table within a given subject
+
+<br>
+
+**Element 4:** Race Iteration (Selected Tables Only)
+
+|Code|Population|
+|:---|:---------|
+|A|White Alone|
+|B|Black or African American Alone|
+|C|American Indian and Alaska Native Alone|
+|D|Asian Alone|
+|E|Native Hawaiian and Other Pacific Islander Alone|
+|F|Some Other Race Alone|
+|G|Two or More Races|
+|H|White Alone, Not Hispanic or Latino|
+|I|Hispanic or Latino|
+
+<br>
+
+**Element 5:** Identification for Puerto Rico Geographies (Selected Tables Only)
+
+For selected tables, a final alphabetic suffix "PR" follows to indicate a table is available for Puerto Rico geographies only. 
+
+<br> 
+
+**Commonly Used Tables** 
+
+|Code|Description|
+|:---|:----------|
+|B01001|**Sex by Age:** total population, male population, female population, age counts|
+|B03002|**Hispanic or Latino by Race:** Non-Hispanic race counts to avoid double counting when Hispanic is a category|
+|B17001|**Poverty Status in the Past 12 Months by Sex by Age:** poverty count by age, sex, or both|
+|B23025|**Employment Status for the Population 16 Years and Over:** unemployment rate|
+|B23002_|**Sex by Age by Employment State for the Population 16 Years and Over (_race Only):** disaggregated unemployment rate|
+|B25002|**Occupancy Status:** count of vacant, occupied, and total housing units|
+|B25003|**Tenure:** count of owner-occupied and renter-occupied units|
+|B25064|**Median Gross Rent (Dollars):** rent estimate|
+|B25071|**Median Gross Rent as a Percentage of Household Income in the Past 12 Months:** rent burden estimate|
+
+<br>
+
+#### $\third{- Decennial Tables}$ 
+
+|Code|Description|
+|:---|:----------|
+|P|Population tables|
+|H|Housing tables|
+|PCT/HCT|Population or housing tables that cover geographies to the census tract level|
+|PCO/HCO|Population or housing tables that cover geographies to the county level|
+|PL|Tables derived from the Redistricting Data (P.L. 94-171) Summary File (Census 2000 only)|
+
+<br> 
+
+**Commonly Used Tables** 
+
+|Code|Description|
+|:----|:----------|
+|P12|**Sex by Age:** total population, male population, female population, age counts|
+|P5|**Hispanic or Latino by Race:** Non-Hispanic race counts to avoid double counting when Hispanic is a category|
+|H3|**Occupancy Status:** count of vacant, occupied, and total housing units|
+|H4|**Tenure:** count of owner-occupied and renter-occupied units|
+
+
+<br> 
+
+#### $\third{- Searching}$ 
+
+In R Studio, use view and filter to search for a variable
+
+```{r}
+acs_variables <- load_variables(2016, "acs5")
+
+View(acs_variables)
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/census/viewvar.png)
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
+
+# $\first{Querying}$
+
+****
+
+### $\second{Basic}$
+
+```{r}
+# Decennial 
+get_decennial(geography = "state", 
+              variables = c(Population = "P001001"),
+              year = 2010,
+              output = "wide") %>%
+  head(5)
+```
+
+<br> 
+
+```{r}
+# American Community Survey
+get_acs(geography = "state",
+        variables = c(Male_pop = "B01001_002",
+                      Female_pop = "B01001_026"),
+        year = 2016,
+        survey = "acs5") %>%  # acs5 = five-year estimates, acs1= one-year estimates
+  head(6)
+```
+
+****
+
+### $\second{Whole Table}$
+
+```{r}
+recode_vars <- c("B19001_001" = "Total",
+                 "B19001_002" = "Less than $10,000",
+                 "B19001_003" = "$10,000 to $14,999", 
+                 "B19001_004" = "$15,000 to $19,999",
+                 "B19001_005" = "$20,000 to $24,999", 
+                 "B19001_006" = "$25,000 to $29,999",
+                 "B19001_007" = "$30,000 to $34,999",
+                 "B19001_008" = "$35,000 to $39,999",
+                 "B19001_009" = "$40,000 to $44,999",
+                 "B19001_010" = "$45,000 to $49,999",
+                 "B19001_011" = "$50,000 to $59,999",
+                 "B19001_012" = "$60,000 to $74,999",
+                 "B19001_013" = "$75,000 to $99,999",
+                 "B19001_014" = "$100,000 to $124,999",
+                 "B19001_015" = "$125,000 to $149,999", 
+                 "B19001_016" = "$150,000 to $199,999", 
+                 "B19001_017" = "$200,000 or more")
+
+get_acs(geography = "county",
+        state = "NY",
+        table = "B19001",
+        year = 2016,
+        survey = "acs5") %>%
+  mutate(variable = recode_vars[variable]) %>% 
+  head(10)
+```
+
+****
+
+### $\second{Iterating}$
+
+#### $\third{- Multiple Geographies}$ 
+
+```{r}
+get_acs(geography = "tract",
+        state = c("NY", "CT", "NJ", "PA", "MA", "RI"),
+        variables = c(Population = "B01001_001"),
+        year = 2016,
+        survey = "acs5") %>%
+  head(3)
+```
+
+<br>
+
+#### $\third{- Multiple Levels}$ 
+
+```{r}
+map_dfr(c("us", "state", "county"), function(x) {
+  get_acs(geography = x,
+          variables = c(Population = "B01001_001"),
+          year = 2016,
+          survey = "acs5") %>% 
+    head(3)})
+```
+
+<br>
+
+#### $\third{- Multiple Years}$ 
+
+```{r}
+map_dfr(2012:2016, function(x) {
+  get_acs(geography = "state",
+          state = "NY",
+          variables = c(Population = "B01001_001"),
+          year = x,
+          survey = "acs5") %>% 
+    mutate(year = x)})
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
+
+# $\first{Analysis}$
+
+****
+
+### $\second{ACS Margin of Error}$
+
+Whereas the Decennial census is a literal census (or as close to one as possible), the ACS is based on a sampling. As such, the numbers are really **estimates** which also have **margins of error** because they are not literal counts.
+
+<br> 
+
+#### $\third{- Extreme Margins}$ 
+
+```{r}
+ny_elder_poverty <- get_acs(geography = "tract",
+                            state = "NY",
+                            variables = c(male = "B17001_016", 
+                                          female = "B17001_030"),
+                            year = 2016,
+                            survey = "acs5")
+
+moe_check <- ny_elder_poverty %>%
+  filter(moe > estimate) 
+
+nrow(moe_check) / nrow(ny_elder_poverty)
+```
+<br> 
+
+#### $\third{- Functions with Margins}$ 
+
+```{r}
+# Adding variables
+get_acs(geography = "state",
+                   variables = c(Male_u5 = "B01001_002",
+                                 Female_u5 = "B01001_026"),
+        year = 2016,
+        survey = "acs5",
+        output = "wide") %>%
+  group_by(GEOID) %>% 
+  mutate(Total_u5E = Male_u5E + Female_u5E,
+         Total_u5M = moe_sum(moe = c(Male_u5M, Female_u5M),
+                             estimate = c(Male_u5E, Female_u5E))) %>% 
+  ungroup() %>% 
+  gather(-GEOID, -NAME, key = "var", value = "val") %>% 
+  separate(var, into = c("variable", "type"), sep = "_u5") %>% 
+  mutate(type = recode(type, 
+                       "E" = "Estimate",
+                       "M" = "MOE")) %>% 
+  spread(type, val) %>% 
+  head(3)
+```
+
+<br> 
+
+```{r}
+# Proportions
+get_acs(geography = "state",
+                   variables = c(Households_ = "B25003_001",
+                                 TotRenters_ = "B25003_003"),
+        year = 2016,
+        survey = "acs5",
+        output = "wide") %>%
+  mutate(ShrRenter_E = TotRenters_E / Households_E,
+         ShrRenter_M = moe_ratio(num = TotRenters_E,
+                                      denom = Households_E,
+                                      moe_num = TotRenters_M,
+                                      moe_denom = Households_M)) %>% 
+  gather(-GEOID, -NAME, key = "var", value = "val") %>% 
+  separate(var, into = c("variable", "type"), sep = "_") %>% 
+  mutate(type = recode(type, 
+                       "E" = "Estimate",
+                       "M" = "MOE")) %>% 
+  spread(type, val) %>% 
+  mutate(variable = recode(variable, 
+                           "ShrRenter" = "Share Renter",
+                           "TotRenters" = "Total Renters")) %>% 
+  filter(variable != "Households") %>% 
+  arrange(NAME, desc(variable)) %>% 
+  mutate_if(is.double, round, 3) %>% 
+  head(4)
+```
+
+****
+
+### $\second{Comparing Years}$
+
+The Census Bureau divides the country into tracts of around 4,000 people that are "designed to be relatively homogeneous units with respect to population characteristics, economic status, and living conditions". Tracts were introduced in 1910, but only a few cities (New York being one of them) were tracted; it wasn’t until 1990 that the whole country was tracted! Because they are based on population size, tract boundaries can change over time from Census to Census. This makes comparing indicators across time difficult since the same tract number in one dataset may refer to a different geography in a different dataset. Adjusting the tracts enables comparisons of the same area over time. 
+
+The most recent change to Census tract boundaries followed the 2010 Census. Thus, Census data (or other data reported at the Census tract level) from 1970-2000 needs to be translated into 2010 Census tracts (or 2010 and later data can be translated back to a previous year’s geography) before a comparison can be made. 
+
+The [Longitudinal Tract Database (LTDB)](https://s4.ad.brown.edu/projects/diversity/Researcher/Bridging.htm) is an open-source crosswalk that helps bridge data for Census tracts across time. Each row in the crosswalk contains a tract number from a previous year, a tract number of the current year that overlaps with the previous boundary, and the proportion of the previous tract that is within the current tract to serve as a weight. Old tracts that were split into multiple new tracts have a row for each new tract, so the column containing the old tract numbers does not contain unique values. Similarly, new tracts that are made up of several old tracts have a row for each of the old tracts that were merged, so the column containing new tract numbers does not contain unique values. Only the combination of old and new tract number columns is unique. 
+
+```{r eval=FALSE}
+from_year = 2010
+to_year = 2000
+
+from_yr = str_sub(from_year,-2,-1)
+to_yr = str_sub(to_year,-2,-1)
+
+xwalk <- read_csv("path to downloaded LTDB crosswalk")
+
+old_tracts <- get_acs(geography = "tract",
+                      state = "NY", 
+                      variables = c(Female_Newborn = "B01001_027"),
+                      year = 2009,
+                      survey = "acs5",  
+                      output = "wide")
+
+new_tracts <- old_tracts %>%
+  inner_join(xwalk, by = glue("trtid{from_yr}"))%>%
+  mutate(Female_Newborn = Female_Newborn * weight) %>%
+  group_by(!!as.name(glue("trtid{to_yr}")))%>%
+  summarise(pop_num_00 = sum(pop_num))%>%
+  ungroup()
+
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
+
+# $\first{Mapping Data}$
+
+***
+
+```{r}
+library(tigris)
+options(tigris_class = "sf")
+```
+
+***
+
+### $\second{Getting Shapefiles}$
+
+#### $\third{- Caching data}$ 
+
+```{r eval=FALSE}
+tigris_cache_dir("Your preferred cache directory path would go here")
+options(tigris_use_cache = TRUE)
+```
+
+<br>
+
+#### $\third{- Basic Fields}$ 
+
+* `blocks()`
+* `block_groups()`
+* `tracts()`
+* `counties()`
+* ...
+
+```{r}
+ny_counties <- counties(state = "NY", cb = TRUE) #clipped shoreline
+
+plot(ny_counties$geometry)
+```
+
+<br>
+
+#### $\third{- Features}$ 
+
+* `area_water()`
+* `primary_roads()`
+* `primary_secondary_roads()`
+* `landmarks()`
+* ...
+
+```{r}
+ny_roads <- primary_secondary_roads(state = "NY")
+
+plot(ny_roads$geometry)
+```
+
+***
+
+### $\second{Plotting}$
+
+#### $\third{- Multiple Plots}$ 
+
+```{r}
+# Census Tract Year
+si_tracts_90 <- tracts(state = "NY", county = "Richmond", cb = TRUE, year = 1990)
+si_tracts_10 <- tracts(state = "NY", county = "Richmond", cb = TRUE, year = 2010)
+
+plot(si_tracts_90$geometry)
+plot(si_tracts_10$geometry, add = TRUE, border = "red")
+```
+
+<br>
+
+#### $\third{- Joining}$ 
+
+```{r eval=FALSE}
+nyc_metro <- map(c("NY", "NJ", "CT"), function(x) {
+  counties(state = x, cb = TRUE)}) %>%
+  rbind_tigris()
+
+plot(nyc_metro$geometry)
+```
+
+<br>
+
+#### $\third{- Census Data}$ 
+
+`get_acs()` has a built-in tigris field called `geometry`
+
+```{r}
+ny_tract_pop = get_acs(geography = "tract",
+                       state = "NY",
+                       variables = "B03002_001",
+                       year = 2019,
+                       survey = "acs5",
+                       output = "wide",
+                       geometry = TRUE)
+
+
+
+ny_tract_pop %>% 
+  ggplot() + 
+  geom_sf(aes(fill = B03002_001E), color = NA) +
+  scale_fill_viridis_c()
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
+
+[Return to R Page](index_r.html)
