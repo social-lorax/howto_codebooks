@@ -1,0 +1,291 @@
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
+[Return to Main Page](index.html)
+
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+```
+
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logos/markdown.png" width="200">
+
+</div>
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/comms.jpg)
+
+<a href="https://github.com/social-lorax/howto_codebooks/blob/master/cheatsheets/RMarkdown.pdf" target="_blank">Markdown Cheatsheet</a>
+
+# $\first{Start File}$
+
+***
+
+```
+---
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float: true
+    toc_depth: 4
+    number_sections: false
+    df_print: kable
+---
+
+\newcommand\first[1]{\color{darkblue}{\textbf{#1}}}
+\newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
+\newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
+
+[Return to Main Page](index.html)
+
+.```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)`
+.```
+```
+
+<br> 
+
+If using R: 
+
+```
+.```{r echo=FALSE}
+library(tidyverse)
+.```
+```
+
+<br> 
+
+If using Python: 
+
+```
+.```{r include=FALSE}
+library(reticulate)
+.```
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/comms.jpg)
+
+# $\first{Headings}$
+
+***
+
+```
+# $\first{Text}$
+
+****
+
+Text 
+
+****
+
+### $\second{Text}$
+
+Text 
+
+<br> 
+
+#### $\third{- Text}$ 
+
+<br> 
+
+#### $\third{- Text}$ 
+
+****
+
+### $\second{Text}$
+
+Text 
+
+![](underline.link)
+
+# $\first{Text}$
+
+****
+```
+<br> 
+
+# $\first{Title I}$
+
+****
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+
+****
+
+### $\second{Sub IA}$
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+
+<br> 
+
+#### $\third{- SubSub IA1}$ 
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+<br> 
+
+#### $\third{- SubSub IA2}$ 
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+
+****
+
+### $\second{Sub IB}$
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
+
+# $\first{Title II}$
+
+****
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/comms.jpg)
+
+# $\first{Images}$
+
+****
+
+### $\second{Basic}$
+
+```
+![](path/to/image.png)
+```
+
+<br> 
+
+```
+<img src="https://path/to/image.png">
+```
+
+****
+
+### $\second{Size}$
+
+```
+<img src="https://path/to/image.png" width="x" height="y">
+```
+
+<br> 
+
+*Original*
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logos/markdown.png">
+
+<br> 
+
+*Height of 10*
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logos/markdown.png" height="10">
+
+<br> 
+
+*Height of 100*
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logos/markdown.png" height="100">
+
+<br> 
+
+*Height of 500*
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logos/markdown.png" height="500">
+
+<br> 
+
+*Height (200) and Width (100)*
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logos/markdown.png" height="200" width ="100">
+
+****
+
+### $\second{Position}$
+
+*Left = default* 
+
+<br> 
+
+*Center*
+
+```
+<div align="center">
+
+<img src="path/to/image.png">
+
+</div>
+```
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logos/markdown.png" width="100">
+
+</div>
+
+<br> 
+
+*Right*
+
+```
+<div align="right">
+
+<img src="path/to/image.png">
+
+</div>
+```
+<div align="right">
+
+<img src="https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/logos/markdown.png" width="100">
+
+</div>
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/comms.jpg)
+
+# $\first{Tables}$
+
+****
+
+### $\second{Basic}$
+
+```
+|Heading 1|Heading 2|Heading 3  |
+|---------|---------|-----------|
+|lorem    |ipsum    |dolor      |
+|sit      |amet     |consectetur| 
+```
+|Heading 1|Heading 2|Heading 3  |
+|---------|---------|-----------|
+|lorem    |ipsum    |dolor      |
+|sit      |amet     |consectetur| 
+
+****
+
+### $\second{Alignment}$
+
+```
+|Left       |Center  |Right  |
+|:----------|:------:|------:|
+|adipiscing |elit    |sed    |
+|do         |eiusmod |tempor |
+```
+|Left       |Center  |Right  |
+|:----------|:------:|------:|
+|adipiscing |elit    |sed    |
+|do         |eiusmod |tempor |
+
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/comms.jpg)

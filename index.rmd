@@ -22,7 +22,7 @@ Feel free to use them and reach out with suggestions - ryan.m.brenner@gmail.com.
 
 # $\first{Data Analysis}$
 
-![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/head_analysis.png?raw=true)
+<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/index/head_analysis.png?raw=true" width="500">
 
 ### [R](index_r.html)
 
@@ -40,10 +40,18 @@ Feel free to use them and reach out with suggestions - ryan.m.brenner@gmail.com.
 
 ### [Spatial Data](spatial.html)
 
-### ArcGIS/QGIS
+### [ArcGIS/QGIS](arc.html)
 
 ### [R(ggplot/leaflet)](r_spatial.html)
 
-### Python
+### [Python](py_spatial.html)
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
+
+# $\first{Communication}$
+
+<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/index/head_comms.png?raw=true" width="500">
+
+### [Markdown](markdown.html)
 
 ![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
