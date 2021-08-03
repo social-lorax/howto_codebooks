@@ -25,7 +25,7 @@ library(tidyverse)
 
 ![](https://github.com/social-lorax/howto_codebooks/blob/master/images/logos/r_main.png?raw=true)
 
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
 
 # $\first{Super Basic}$
 
@@ -57,7 +57,11 @@ Use a `?` to pull up information on a package and its arguments
 |Character|value-less characters |`"100"`    |
 |Logical  |binary value          |`TRUE`     |
 
+<br>
+
 `typeof()` checks the type 
+
+<br>
 
 `as.*()` converts 
 
@@ -83,7 +87,7 @@ typeof(1L + 1L)
 typeof(1L / 1L)
 ```
 
-***
+****
 
 ### $\second{Boolean Operators}$
 
@@ -98,7 +102,7 @@ typeof(1L / 1L)
 |And                     |`&`       |
 |Or                      |`|`       |
 
-***
+****
 
 ### $\second{Variables}$
 
@@ -120,7 +124,8 @@ a <- 'see!'
 
 print(str_c("a = ", a, "; b = ", b))
 ```
-***
+
+****
 
 ### $\second{Factors}$
 
@@ -132,11 +137,15 @@ example_strings <- c("medium", "slow", "slow", "medium", "fast")
 example_strings
 ```
 
+<br> 
+
 ```{r}
 example_factor <- factor(example_strings)
 
 example_factor
 ```
+
+<br> 
 
 ```{r}
 example_ordered_factor <- factor(example_strings, 
@@ -146,446 +155,139 @@ example_ordered_factor <- factor(example_strings,
 example_ordered_factor
 ```
 
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
 
 # $\first{Vectors}$
 
-(One dimensional array; all the same data type)
+Vectors are one dimensional arrays of information: 
+
+* **Atomic Vector** = all of the same data type (logical, integer, real, complex, string)
+* **Lists** (generic vectors) = the data does not need to be related at all 
 
 ***
 
 ### $\second{Creating}$
 
-#### $\third{- Basic Vector}$
+`c()` creates atomic vectors 
 
 ```{r}
 eg_vector <- c(1, 2, 3)
 eg_vector
 ```
 
+<br> 
+
+`list()` creates lists
+
+```{r}
+eg_list <- list(1, "2", eg_vector)
+eg_list
+```
 <br>
 
-#### $\third{- Named Vector}$
+#### $\third{- Names}$
+
+`names()` adds names after creation 
 
 ```{r}
-names(eg_vector) <- c("item1", "item2", "item3")
-eg_vector
-```
-
-***
-
-### $\second{Operations}$
-
-#### $\third{- Adding Vectors}$
-
-**Within**
-
-```{r}
-sum(eg_vector)
-```
-
-**Between** 
-
-`c(1, 2, 3) + c(4, 5, 6)` = 
-
-`c((1 + 4), (2 + 5), (3 + 6))`  =
-
-`c(5, 7, 9)`  
-
-```{r}
-A_vector <- c(1, 2, 3)
-B_vector <- c(4, 5, 6)
-A_vector + B_vector
-```
-
-<br>
-
-#### $\third{- Evaluating}$
-
-**Testing**
-
-```{r}
-A_vector > 2
-```
-
-**Extracting**
-
-```{r}
-A_vector[A_vector > 2]
-```
-
-***
-
-### $\second{Indexing}$
-
-#### $\third{- Extract a specific item}$
-
-```{r}
-eg_vector[1]
-```
-
-<br>
-
-#### $\third{- Extract a set of specific items}$
-
-```{r}
-eg_vector[c(1,3)]
-```
-
-<br>
-
-#### $\third{- Extract a range of items}$
-
-```{r}
-eg_vector[1:3]
-```
-
-<br>
-
-#### $\third{- Extract a specific named item}$
-
-```{r}
-eg_vector["item1"]
-```
-
-***
-
-### $\second{Editing}$
-
-```{r}
-eg_vector["item1"] <- 100
-
-eg_vector
-```
-
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
-
-# $\first{Lists}$
-
-(One dimensional array; elements do not have to be related in any way)
- 
-***
-
-### $\second{Creating}$
-
-#### $\third{- Basic List}$
-
-```{r}
-list(A_vector, B_vector)
-```
-
-<br>
-
-#### $\third{- Named List}$
-
-```{r}
-list("A" = A_vector,
-     "B" = B_vector)
-```
-
-```{r}
-eg_list <- list(A_vector, B_vector)
-names(eg_list) <- c("A", "B")
-
+names(eg_list) <- c("num", "char", "vec")
 eg_list
 ```
 
+<br> 
+
+`=` adds names during creation 
+
+```{r}
+list("num" = 1, 
+     "char" = "2",
+     "vec" = eg_vector)
+```
+
 ***
 
 ### $\second{Indexing}$
 
-#### $\third{- Extract specific item}$
+#### $\third{- Extract a single element}$
+
+`[]` extracts the entire element
+
+```{r}
+eg_list[1]
+```
+
+<br> 
+
+`[[]]` extracts just the value 
 
 ```{r}
 eg_list[[1]]
 ```
+<br> 
 
-<br>
+#### $\third{- Extract a set of elements}$
 
-#### $\third{- Extract specific item by name}$
+`[c()]` extracts specific elements
 
 ```{r}
-eg_list[["A"]]
+eg_list[c(1,3)]
+```
+
+<br> 
+
+#### $\third{- Extract a range of elements}$
+
+`[x:y]` extracts a range elements
+
+```{r}
+eg_list[c(1:3)]
+```
+
+<br> 
+
+#### $\third{- Extract an element by name}$
+
+```{r}
+eg_list["char"]
 ```
 
 ```{r}
-eg_list$A
+eg_list$char
 ```
 
-<br>
+<br> 
 
-#### $\third{- Extract specific item within a specific item}$
+#### $\third{- Extractions from nested lists}$
+
+`[[]][]...` extracts from within elements
 
 ```{r}
-eg_list[[1]][1]
+eg_list[[3]][2]
+```
+
+<br> 
+
+#### $\third{- Extractions based on value}$
+
+```{r}
+eg_vector[eg_vector >= 2]
 ```
 
 ***
 
 ### $\second{Editing}$
 
-#### $\third{- Combining Lists}$
-
 ```{r}
-c(eg_list, eg_list)
-```
+#By Index
+eg_list[1] <- 100
 
-```{r}
-list(eg_list, eg_list)
-```
+#By Name
+eg_list["char"] <- "three"
 
-<br>
-
-#### $\third{- Adding/Changing Items}$
-
-```{r}
-eg_list[3] <- 100
 eg_list
 ```
 
-***
-
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
-
-# $\first{Matrices}$
-
-(Two dimensional array; all the same data type)
-
-***
-
-### $\second{Creating}$
-
-#### $\third{- Filling by Row}$
-
-```{r}
-matrix(1:9,byrow=TRUE,nrow=3)
-```
-
-<br>
-
-#### $\third{- Filling by Column}$
-
-```{r}
-matrix(1:9,byrow=FALSE,nrow=3)
-```
-
-<br>
-
-#### $\third{- Naming}$
-
-```{r}
-eg_matrix <- matrix(1:9,byrow=TRUE,nrow=3)
-
-rownames(eg_matrix) <- c("MA", "NY", "CO")
-colnames(eg_matrix) <- c("2010", "2011", "2013")
-
-eg_matrix
-```
-
-***
-
-### $\second{Operations}$
-
-#### $\third{- Row Sums}$
-
-```{r}
-rowSums(eg_matrix)
-```
-
-<br>
-
-#### $\third{- Column Sums}$
-
-```{r}
-colSums(eg_matrix)
-```
-
-<br>
-
-#### $\third{- Adding Matrices}$
-
-```{r}
-matrix_a <- matrix(1:9,byrow=TRUE,nrow=3)
-
-matrix_b <- matrix(1:9,byrow=FALSE,nrow=3)
-
-matrix_a + matrix_b
-```
-
-***
-
-### $\second{Indexing}$
-
-#### $\third{- Extract a specific item}$
-
-```{r}
-eg_matrix[1,2]
-```
-
-<br>
-
-#### $\third{- Extract a subset}$
-
-```{r}
-eg_matrix[1:2,2:3]
-```
-
-<br>
-
-#### $\third{- Extract a specific subset}$
-
-```{r}
-eg_matrix[c(1,3),2:3]
-```
-
-<br>
-
-#### $\third{- Extract a row and all columns}$
-
-```{r}
-eg_matrix[1,]
-```
-
-<br>
-
-#### $\third{- Extract a column and all rows}$
-
-```{r}
-eg_matrix[,1]
-```
-
-***
-
-### $\second{Editing}$
-
-#### $\third{- Adding a column}$
-
-```{r}
-cbind(eg_matrix, eg_vector)
-```
-
-<br>
-
-#### $\third{- Adding a row}$
-
-```{r}
-rbind(eg_matrix, eg_vector)
-```
-
-<br>
-
-#### $\third{- Replacing a specific value}$
-
-```{r}
-eg_matrix[1,2] <- 100
-eg_matrix
-```
-
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
-
-# $\first{Dataframes}$
-
-(Two dimensional array; all the same data type within a column, but different columns can have different data types)
-
-***
-
-### $\second{Creating}$
-
-```{r}
-name <- c("Mercury", "Venus", "Earth", "Mars")
-type <- c("Terrestrial", "Terrestrial", "Terrestrial", "Terrestrial")
-diameter <- c(0.382, 0.949, 1, 0.532)
-rotation <- c(58.64, -243.02, 1, 1.03)
-rings <- c(FALSE, FALSE, FALSE, FALSE)
-
-planets_df <- data.frame(name, type, diameter, rotation, rings)
-
-planets_df
-```
-
-***
-
-### $\second{Operations}$
-
-#### $\third{- Order Ascending}$
-
-```{r}
-planets_df[order(planets_df$diameter),"name"]
-```
-
-<br>
-
-#### $\third{- Order Descending}$
-
-```{r}
-planets_df[order(planets_df$diameter,decreasing=TRUE),"name"]
-```
-
-***
-
-### $\second{Indexing}$
-
-#### $\third{- Extract a specific item}$
-
-```{r}
-planets_df[2,1]
-```
-
-<br>
-
-#### $\third{- Extract a subset}$
-
-```{r}
-planets_df[2:3,1:2]
-```
-
-<br>
-
-#### $\third{- Extract a specific subset}$
-
-```{r}
-planets_df[c(1,3),1:2]
-```
-
-<br>
-
-#### $\third{- Extract all rows of a column}$
-
-```{r}
-planets_df[,1]
-```
-
-<br>
-
-#### $\third{- Extract all columns of a row}$
-
-```{r}
-planets_df[1,]
-```
-
-<br>
-
-#### $\third{- Extract column by name}$
-
-```{r}
-planets_df[,"diameter"]
-```
-
-```{r}
-planets_df$rings
-```
-
-<br>
-
-#### $\third{- Extract based on values}$
-
-```{r}
-planets_df[planets_df$rotation<0,]
-```
-
-***
-
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
 
 # $\first{If Statements}$
 
@@ -625,75 +327,7 @@ if (condition_1) {
 }
 ```
 
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png) 
-
-# $\first{Loops}$
-
-***
-
-### $\second{While}$
-
-#### $\third{- External Condition}$
-
-```{r eval=FALSE}
-while (condition) {
-  expression
-}
-```
-
-<br>
-
-#### $\third{- Indexed}$
-
-```{r eval}
-i <- 1
-
-while (i <= 3) {
-  print(i)
-  
-  i <- i + 1
-}
-```
-
-***
-
-### $\second{For}$
-
-#### $\third{- Iterate Over a List}$
-
-```{r}
-fruit_list <- c("Apples", "Strawberries", "Bananas")
-
-for (item in fruit_list) {
-  print(str_c("I love ",item))
-}
-```
-
-<br>
-
-#### $\third{- Iterate Over a Sequence}$
-
-```{r}
-for (i in seq_along(1:3)) {
-  print(i + 1)
-}
-```
-
-<br>
-
-#### $\third{- Fill in a New List}$
-
-```{r}
-dummy_list <- list()
-
-for (i in seq_along(1:3)) {
-  dummy_list[[i]] <- i + 1
-}
-
-dummy_list
-```
-
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
 
 # $\first{Functions}$
 
@@ -702,7 +336,7 @@ dummy_list
 ### $\second{Existing}$
 
 * `install.packages("package")` to install package once 
-* `library(package)` to load package each script 
+* `library(package)` to load package in each script 
 * `update.packages("package")` to update package as needed
 
 ***
@@ -752,41 +386,163 @@ function_name <- function(argument) {
 }
 ```
 
-***
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
 
-### $\second{Applying}$
+# $\first{Iterating}$
 
-* `lapply` returns a list
-* `sapply` tries to return a simplified list as a vector or matrix
-* `vapply` is like `sapply` but with the result type specified using `data type(length)`
+****
 
-```{r}
-lapply(c(1, 2, 3), sqrt)
-sapply(c(1, 2, 3), sqrt)
-vapply(c(1, 2, 3), sqrt, numeric(1))
+### $\second{Loops}$
+
+While these forms of iteration work, they are less preferred than mapping in R. 
+
+<br> 
+
+#### $\third{- While}$
+
+```{r eval=FALSE}
+while (condition) {
+  expression
+}
 ```
 
 <br>
 
-#### $\third{- Additional Arguments}$
+```{r eval}
+i <- 1
 
-`lapply(vector, function, other_arguments)` is how you add additional arguments
+while (i <= 3) {
+  print(i)
+  
+  i <- i + 1
+}
+```
+
+<br> 
+
+#### $\third{- For}$
+
+Iterate over a list
 
 ```{r}
-lapply(c(1, 2, 3), log, base = 2)
+fruit_list <- c("Apples", "Strawberries", "Bananas")
+
+for (item in fruit_list) {
+  print(str_c("I love ",item))
+}
+```
+
+<br>
+
+Iterate along a sequence
+
+```{r}
+for (i in seq_along(1:3)) {
+  print(i + 1)
+}
+```
+
+<br>
+
+Fill in a New List
+
+```{r}
+dummy_list <- list()
+
+for (i in seq_along(1:3)) {
+  dummy_list[[i]] <- i + 1
+}
+
+dummy_list
+```
+
+****
+
+### $\second{Mapping with purrr}$
+
+Base R has `lapply()`, `sapply()`, and `vapply()`, but `purrr` is much better! 
+
+<br> 
+
+#### $\third{- Basic}$
+
+`map(.x, .f, ...)` maps function `.f` over data `.x` using `...` additional arguments  
+
+* If `.x` is a dataframe, `.f` is mapped over each column 
+* If `.x` is a list or vector, `.f` is mapped over each item
+
+```{r}
+map(c(4, 16, 512), log, base = 2)
+```
+
+<br> 
+
+#### $\third{- Output}$
+
+* `map()` returns a list 
+* `map_lgl()` returns a logical vector
+* `map_int()` returns an integer vector
+* `map_dbl()` returns a double vector
+* `map_chr()` returns a character vector
+
+```{r}
+map(c(4, 16, 512), log, base = 2)
+map_dbl(c(4, 16, 512), log, base = 2)
+map_chr(c(4, 16, 512), log, base = 2)
 ```
 
 <br>
 
 #### $\third{- On the Fly Functions}$
 
-`lapply(vector, function(argument){new_function expression})` is how you apply a new function
+`map_*(vector, ~function)` is how you apply a new function
 
-```{r eval=FALSE}
-lapply(c(1, 2, 3), function(x, y){x/(x^y)}, 2)
+```{r}
+map_dbl(c(1, 2, 3), ~./.^2)
 ```
 
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png) 
+<br>
+
+#### $\third{- Preventing Errors}$
+
+```{r eval = FALSE}
+map_dbl(c(1, 10, "a"), log)
+```
+
+`Error in .Primitive("log")(x, base) : non-numeric argument to mathematical function`
+
+<br>
+
+`safely()` tries every element and records the result and the error message
+
+```{r}
+map(list(1, 10, "a"), safely(log))
+```
+To make this workable: 
+
+```{r}
+inputs <- list(1, 10, "a")
+
+results <- map(inputs, safely(log))
+
+values <- transpose(results)[["result"]]
+errors <- transpose(results)[["error"]]
+
+is_ok <- map_lgl(errors, is_null)
+
+inputs[!is_ok]
+errors[!is_ok]
+```
+
+<br> 
+
+`possibly()` just replaces failures with a given value 
+
+```{r}
+map_dbl(list(1, 10, "a"), possibly(log, NA_real_))
+```
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
 
 # $\first{Regular Expressions}$
 
@@ -811,7 +567,7 @@ lapply(c(1, 2, 3), function(x, y){x/(x^y)}, 2)
 #### $\third{- Search}$
 
 * `grepl()` returns TRUE when a pattern is found in the corresponding character string.
-* `grep()` returns a vector of indices of the character strings that contains the pattern.
+* `grep()` returns a vector of indices of the character strings that contain the pattern.
 
 ```{r}
 eg_text <- c("123 Main Street, Anytown, Any State, 12345, United States",
@@ -833,9 +589,9 @@ grep("[0-9]+ [a-zA-Z]+ [a-zA-Z]+, [a-zA-Z]+, [a-zA-Z]+ [a-zA-Z]+, [0-9]+, United
 ```{r}
 eg_text <- "This 123 has 456 random 789 numbers"
 
-sub("[0-9]+", "", eg_text)
+sub("[0-9]+", "string", eg_text)
 
 gsub("[0-9]+", "", eg_text)
 ```
 
-![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/R_underline.png)
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
