@@ -27,6 +27,8 @@ output:
 
 </div>
 
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
+
 # $\first{Program}$
 
 [Basic R](r_basic.html)  
@@ -35,7 +37,9 @@ output:
 
 # $\first{Import}$
 
-[Census: tidycensus](r_census.html)
+[readr and haven](r_import.html)
+
+[tidycensus](r_census.html)
 
 ![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
 
