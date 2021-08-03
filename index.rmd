@@ -38,12 +38,12 @@ Feel free to use them and reach out with suggestions - ryan.m.brenner@gmail.com.
 
 <img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/index/head_geospatial.png?raw=true" width="500">
 
-[Spatial Data](spatial.html)
+### [Spatial Data](spatial.html)
 
-ArcGIS/QGIS
+### ArcGIS/QGIS
 
-[R(ggplot/leaflet)](r_spatial.html)
+### [R(ggplot/leaflet)](r_spatial.html)
 
-Python
+### Python
 
 ![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
