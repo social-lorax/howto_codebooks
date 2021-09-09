@@ -13,7 +13,7 @@ output:
 \newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
 \newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
 
-[Return to Main Page](indexr_r.html)
+[Return to Main Page](index_r.html)
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(comment=NA, warning=FALSE, message=FALSE)
@@ -223,6 +223,14 @@ gapminder
 ```{r}
 gapminder %>% 
   names()
+```
+
+<br> 
+
+`distinct` gives a list of all unique values in a specified column
+
+```{r}
+gapminder %>% distinct(continent)
 ```
 
 ****
