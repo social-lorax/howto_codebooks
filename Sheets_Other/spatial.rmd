@@ -13,7 +13,7 @@ output:
 \newcommand\second[1]{\color{dodgerblue}{\textbf{#1}}}
 \newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
 
-<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/spatial/0.png?raw=true" width="500">
+<img src="https://github.com/social-lorax/howto_codebooks/blob/master/images/index/head_geospatial.png?raw=true" width="500">
 
 # $\first{Spatial Data}$
 
@@ -23,7 +23,11 @@ output:
 
 **Spatial Data = Coordinates + Coordinate Reference System (CRS)**
 
-A common CRS is latitude/longitude
+<br> 
+
+#### $\third{Coordinates}$
+
+Coordinates are commonly listed as latitude and longitude
 
 * Latitude = position North to South
 * Longitude = position East to West
@@ -42,6 +46,20 @@ Often it is written as: (longitude, latitude)
 
 Thus: (-123.2803, 44.57808)
 
+<br> 
+
+#### $\third{CRS/Projection}$
+
+When visualizing a 3D Earth onto a 2D map, a projection determines how it will be distorted. 
+
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/spatial/crs.png?raw=true)
+
+Common CRSs include: 
+
+* WGS84 (EPSG: 4326) is used by organizations that provide GIS data for the entire globe or many countries (e.g., Google Earth) 
+* NAD83 (EPSG: 4269) is the most commonly used by U.S. federal agencies
+* The New York State Plane Long Island Zone (EPSG: 2263) is the most accurate for NYC
+
 ***
 
 <br> 
@@ -50,7 +68,7 @@ Thus: (-123.2803, 44.57808)
 
 ![](https://github.com/social-lorax/howto_codebooks/blob/master/images/spatial/spatial_types.png?raw=true)
 
-![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index_underline.gif?raw=true)
+![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index/underline.gif?raw=true)
 
 # $\first{Census}$
 
@@ -202,10 +220,11 @@ ZIP Code® tabulation areas (ZCTAs) are generalized areal representations of U.S
 
 ![](https://github.com/social-lorax/howto_codebooks/blob/master/images/index_underline.gif?raw=true)
 
-
 # $\first{New York City}$
 
 ### $\second{NY Counties}$
+
+[More on NY county development](https://social-lorax.github.io/guides/ny_boundaries.html)
 
 ![](https://github.com/social-lorax/howto_codebooks/blob/master/images/spatial/ny_counties.gif?raw=true)
 
