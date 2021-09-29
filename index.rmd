@@ -42,7 +42,7 @@ Feel free to use them and reach out with suggestions - ryan.m.brenner@gmail.com.
 
 ### [ArcGIS/QGIS](arc.html)
 
-### [R(ggplot/leaflet)](r_spatial.html)
+### [R](r_spatial.html)
 
 ### [Python](py_geopandas.html)
 
