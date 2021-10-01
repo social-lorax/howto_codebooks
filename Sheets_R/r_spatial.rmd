@@ -45,10 +45,11 @@ library(raster)
 
 #### $\third{- Reading in Data}$ 
 
-Vector data is read in with `read_sf`...
+Vector data (in any spatial form) is read in with `read_sf`...
 
-```{r eval = FALSE}
-spatial <- read_sf("pathway/to/shapefile.shp")
+```{r}
+url <- "https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/Sheets_Py/Borough%20Boundaries.geojson"
+boros <- read_sf(url)
 ```
 
 ...or by transforming data using `st_as_sf()`
@@ -62,14 +63,16 @@ spatial <- read_csv("pathway/to/spatial.csv") %>%
 
 Raster data is read in using `raster()` if it is single-band...
 
-```{r eval = FALSE}
-spatial <- raster("pathway/to/raster.tif")
+```{r}
+url <- "https://github.com/social-lorax/howto_codebooks/blob/master/Sheets_R/canopy.tif?raw=true"
+canopy <- raster(url)
 ```
 
 ...and `brick()` if it is multi-band
 
-```{r eval = FALSE}
-spatial <- brick("pathway/to/raster.tif")
+```{r}
+url <- "https://github.com/social-lorax/howto_codebooks/blob/master/Sheets_R/manhattan.tif?raw=true"
+manhattan <- brick(url)
 ```
 
 ****
@@ -214,6 +217,8 @@ boro_halls
 
 #### $\third{- Checking}$ 
 
+For vector data, you can just call the data or use `st_crs()`
+
 ```{r eval=FALSE}
 boro_halls
 ```
@@ -227,6 +232,14 @@ boro_halls %>% st_crs()
 
 <br>
 
+For raster data, just use `crs()`
+
+```{r}
+canopy %>% crs()
+```
+
+<br>
+
 #### $\third{- Reprojecting}$ 
 
 |Name                               |Code|
@@ -234,25 +247,97 @@ boro_halls %>% st_crs()
 |World Geodetic System 1984 (WGS 84)|4326|
 |NAD83 / New York Long Island       |2263|
 
+For vector data, use `st_transform()`
+
 ```{r eval = FALSE}
 boro_halls <- boro_halls %>% 
   st_transform(2263)
 ```
+
+<br> 
+
+For raster data, use `projectRaster()` 
+
+```{r eval = FALSE}
+canopy <- canopy %>% 
+  projectRaster(crs = 2263)
+```
+
+****
+
+### $\second{Simplifying}$
+
+For vector data, use `st_simplify()` (you need to transform out of lat/long first but can transform back after)
+
+```{r}
+object.size(boros)
+```
+
+```{r}
+boros_simple <- boros %>% 
+  st_transform(2263) %>% 
+  st_simplify(preserveTopology = TRUE,
+              dTolerance = 100) %>% 
+  st_transform(4326)
+
+object.size(boros_simple)
+```
+
+```{r}
+str_c(round(100 * (116320 - 1372240) / 1372240, 2), "%")
+```
+
+```{r}
+plot(boros$geometry)
+```
+
+```{r}
+plot(boros_simple$geometry)
+```
+
+<br> 
+
+For raster data, use `aggregate()`
+
+```{r}
+manhattan_simple <- manhattan %>% 
+  aggregate(fact = 5, fun = mean)
+```
+
+```{r}
+res(manhattan)
+```
+
+```{r}
+res(manhattan_simple)
+```
+
+<br> 
+
+```{r}
+ncell(manhattan)
+```
+
+```{r}
+ncell(manhattan_simple)
+```
+
+<br> 
+
+```{r}
+plotRGB(manhattan)
+```
+```{r}
+plotRGB(manhattan_simple)
+```
+
 ****
 
 ### $\second{Plotting}$
 
-```{r}
-#First getting shapefiles from the census tigris packages (see section on census data)
-library(tigris)
-options(tigris_class = "sf")
-
-ny_counties <- counties(state = "NY", cb = TRUE, progress_bar = FALSE) %>% 
-  as_tibble() %>% 
-  filter(NAME %in% c("Bronx", "New York", "Kings", "Queens", "Richmond")) %>% 
-  st_as_sf() %>% 
-  st_transform(crs = 2263) %>% 
-  bind_cols(population = c(2405464, 2736074, 1694251, 1472654, 495747))
+```{r echo = FALSE}
+boros <- boros %>% 
+  mutate(population = c(2405464, 2736074, 1694251, 1472654, 495747))
 ```
 
 <br>
@@ -261,7 +346,7 @@ ny_counties <- counties(state = "NY", cb = TRUE, progress_bar = FALSE) %>%
 
 ```{r}
 ggplot() + 
-  geom_sf(data = ny_counties, aes(fill = population)) + 
+  geom_sf(data = boros, aes(fill = population)) + 
   geom_sf(data = boro_halls, color = "red", size = 2) + 
   theme(axis.text.x = element_blank(),
         axis.text.y = element_blank(),
@@ -301,6 +386,11 @@ boro_halls %>%
         axis.ticks = element_blank(),
         rect = element_blank())
 ```
+
+****
+
+### $\second{Analysis}$
+
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
 
@@ -506,7 +596,8 @@ population <- get_acs(geography = "county",
                       variables = c(population = "B01003_001"),
                       year = 2019, 
                       survey = "acs5",
-                      geometry = TRUE) %>% 
+                      geometry = TRUE,
+                      progress_bar = FALSE) %>% 
   mutate(pretty_estimate = scales::comma(estimate),
          legend_value = estimate / 10000) %>% 
   st_as_sf()
