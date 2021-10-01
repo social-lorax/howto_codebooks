@@ -34,6 +34,7 @@ Used for processing spatial data and basic visualization
 ```{r}
 library(tidyverse)
 library(sf)
+library(raster)
 ```
 
 ****
@@ -44,18 +45,38 @@ library(sf)
 
 #### $\third{- Reading in Data}$ 
 
+Vector data is read in with `read_sf`...
+
 ```{r eval = FALSE}
 spatial <- read_sf("pathway/to/shapefile.shp")
 ```
+
+...or by transforming data using `st_as_sf()`
 
 ```{r eval = FALSE}
 spatial <- read_csv("pathway/to/spatial.csv") %>% 
   st_as_sf()
 ```
 
+<br> 
+
+Raster data is read in using `raster()` if it is single-band...
+
+```{r eval = FALSE}
+spatial <- raster("pathway/to/raster.tif")
+```
+
+...and `brick()` if it is multi-band
+
+```{r eval = FALSE}
+spatial <- brick("pathway/to/raster.tif")
+```
+
 ****
 
 ### $\second{Removing Geometry}$
+
+Having a geometry can be annoying for other functions, so `st_set_geometry(NULL)` removes it
 
 ```{r eval = FALSE}
 non_spatial <- spatial %>% 
@@ -293,7 +314,7 @@ boro_halls %>%
 
 ***
 
-Used for processing spatial data and basic visualization
+Used for creating interactive maps
 
 ```{r}
 library(leaflet)
