@@ -49,7 +49,7 @@ Vector data (in any spatial form) is read in with `read_sf`...
 
 ```{r}
 url <- "https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/Sheets_Py/Borough%20Boundaries.geojson"
-boros <- read_sf(url)
+boros <- read_sf(url) 
 ```
 
 ...or by transforming data using `st_as_sf()`
@@ -249,8 +249,11 @@ canopy %>% crs()
 
 For vector data, use `st_transform()`
 
-```{r eval = FALSE}
-boro_halls <- boro_halls %>% 
+```{r eval}
+boro_halls_2263 <- boro_halls %>% 
+  st_transform(2263)
+
+boros_2263 <- boros %>% 
   st_transform(2263)
 ```
 
@@ -258,8 +261,8 @@ boro_halls <- boro_halls %>%
 
 For raster data, use `projectRaster()` 
 
-```{r eval = FALSE}
-canopy <- canopy %>% 
+```{r}
+canopy_2263 <- canopy %>% 
   projectRaster(crs = 2263)
 ```
 
@@ -327,6 +330,7 @@ ncell(manhattan_simple)
 ```{r}
 plotRGB(manhattan)
 ```
+
 ```{r}
 plotRGB(manhattan_simple)
 ```
@@ -374,7 +378,6 @@ Bounding box to zoom:
 
 ```{r}
 boro_halls %>% 
-  st_transform(4326) %>% 
   ggplot() + 
   annotation_map_tile(type = "cartolight", zoomin = 0) +
   geom_sf(color = "red", size = 1.5) + 
@@ -390,6 +393,327 @@ boro_halls %>%
 ****
 
 ### $\second{Analysis}$
+
+#### $\third{- Centroids}$
+
+`st_centroid()` creates a point at the center of each polygon
+
+```{r}
+boros_centers <- boros_2263 %>% 
+  st_centroid()
+
+ggplot() + 
+  geom_sf(data = boros_2263) +
+  geom_sf(data = boros_centers, color = "blue", size = 2) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank()) 
+```
+
+<br> 
+
+#### $\third{- Buffering}$
+
+First check the projection to get the units you are working with (here, US survey foot, which is about 0.999998 feet)
+
+```{r}
+boro_halls_2263 %>% st_crs()
+```
+
+`st_buffer()` will buffer around a feature (though you cannot add units, so you have to know!)
+
+```{r}
+buffers <- boro_halls_2263 %>% 
+  st_buffer(dist = 5280)
+
+ggplot() + 
+  geom_sf(data = boros_2263) + 
+  geom_sf(data = buffers, fill = "red", alpha = 0.5) + 
+  geom_sf(data = boro_halls, color = "black", size = 2) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank()) 
+```
+
+<br> 
+
+#### $\third{- Distances}$ 
+
+`st_distance()` returns a matrix of the distance between each input to each output
+
+```{r}
+boro_halls_2263 %>% 
+  st_distance(boros_centers)
+```
+
+More processing is needed to find, for example, the closest point
+
+```{r}
+hall_center <- boro_halls_2263 %>% 
+  st_distance(boros_centers) %>%
+  as_tibble()
+
+names(hall_center) <- boros_centers$boro_name
+
+hall_center %>% 
+  mutate(hall = boro_halls_2263$hall) %>% 
+  gather(-hall, key = boro_center, value = distance) %>% 
+  mutate(distance = as.double(distance)) %>% 
+  arrange(hall, distance) %>% 
+  distinct(hall, .keep_all = TRUE) %>% 
+  full_join(boro_halls_2263, by = "hall")
+
+```
+
+<br> 
+
+#### $\third{- Area}$
+
+`st_area()` returns the area of each polygon (make sure to check the CRS for the units!)
+
+```{r}
+boros_2263 %>% 
+  st_area() %>% 
+  as_tibble() %>% 
+  transmute(boro = boros_2263$boro_name,
+            area = as.double(value)) 
+```
+
+<br> 
+
+#### $\third{- Length}$
+
+`st_area()` returns the length of a line 
+
+```{r}
+library(tigris)
+
+roads <- tigris::roads(state = "NY", county = c("Bronx", "Kings", "New York", "Queens", "Richmond"), progress_bar = FALSE) %>% 
+  st_transform(2263)
+
+bedford <- roads %>% 
+  filter(str_detect(FULLNAME, "Bedford Ave"),
+         !(LINEARID %in% c("110425921352", "110444047995"))) %>% 
+  st_union()
+
+ggplot() + 
+  geom_sf(data = boros_2263) + 
+  geom_sf(data = bedford, color = "yellow", size = 1) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank())
+```
+
+```{r}
+bedford %>% 
+  st_length()
+```
+
+<br> 
+
+#### $\third{- Dissolving}$
+
+`st_union()` takes multiple entities and creates a single entity 
+
+```{r}
+mn_buffer <- boro_halls_2263 %>% 
+  filter(hall == "Manhattan Municipal Building") %>% 
+  st_buffer(dist = 1000) %>% 
+  st_transform(4326)
+
+nyc_buffer <- boro_halls_2263 %>% 
+  filter(hall == "New York City Hall") %>% 
+  st_buffer(dist = 1000) %>% 
+  st_transform(4326)
+
+ggplot() + 
+  annotation_map_tile(type = "cartolight", zoomin = 0) +
+  geom_sf(data = mn_buffer, fill = "red", color = "black", alpha = 0.5, ) + 
+  geom_sf(data = nyc_buffer, fill = "blue", color = "black", alpha = 0.5) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank()) 
+```
+
+```{r}
+joined_buffer <- mn_buffer %>% 
+  st_union(nyc_buffer)
+
+ggplot() + 
+  annotation_map_tile(type = "cartolight", zoomin = 0) +
+  geom_sf(data = joined_buffer, fill = "purple", color = "black", alpha = 0.5, ) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank()) 
+```
+
+<br> 
+
+#### $\third{- Spatial Joins}$
+
+`st_join()` returns everything, there is also `st_intersects()` and `st_contains` for more control
+
+```{r}
+rand_points <- tibble(lat = c(40.8845, 40.7202, 40.5905, 40.6366),
+                      long = c(-73.7477, -73.9846, -74.0572, -73.7812)) %>% 
+  st_as_sf(coords  = c("long", "lat"), crs = 4326) %>% 
+  st_transform(crs = 2263)
+
+rand_points %>% 
+  st_join(boros_2263)
+```
+
+```{r}
+ggplot() + 
+  geom_sf(data = boros_2263) + 
+  geom_sf(data = rand_points, color = "black", size = 2) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank()) 
+```
+
+<br> 
+
+```{r}
+bk <- boros_2263 %>% filter(boro_name == "Brooklyn")
+
+bk_intersect <- bk %>% st_intersects(roads)
+bk_intersect <- roads[bk_intersect[[1]],]
+
+bk_contained <- bk %>% st_contains(roads)
+bk_contained <- roads[bk_contained[[1]],]
+
+ggplot() + 
+  geom_sf(data = bk) + 
+  geom_sf(data = bk_intersect, color = "blue", size = 1) + 
+  geom_sf(data = bk_contained, color = "yellow", size = 1, alpha = 0.5) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank()) 
+```
+
+<br> 
+
+#### $\third{- Clipping}$ 
+
+`st_intersection()` clips one entity based on how much of it intersects with another entity 
+
+```{r}
+boro_clips <- buffers %>% 
+  filter(hall == "Bronx County Courthouse") %>% 
+  st_intersection(boros_2263)
+
+ggplot() + 
+  annotation_map_tile(type = "cartolight", zoomin = 0) +
+  geom_sf(data = boro_clips, fill = "purple", color = "black", alpha = 0.5, ) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank()) 
+```
+
+<br> 
+
+#### $\third{- Bounding Box}$ 
+
+`st_make_grid()` creates the smallest box possible containing all elements
+
+```{r}
+boro_box <- boro_halls %>% 
+  st_make_grid(n = 1)
+
+ggplot() + 
+  geom_sf(data = boros) + 
+  geom_sf(data = boro_box, fill = "orange", alpha = 0.5) + 
+  geom_sf(data = boro_halls, color = "black", size = 2) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank()) 
+```
+
+<br> 
+
+#### $\third{- Convex Hull}$ 
+
+`st_convex_hull()` creates the smallest shape possible containing all elements
+
+```{r}
+hull <- boro_halls %>% 
+  st_union() %>% 
+  st_convex_hull()
+
+ggplot() + 
+  geom_sf(data = boros) + 
+  geom_sf(data = hull, fill = "orange", alpha = 0.5) + 
+  geom_sf(data = boro_halls, color = "black", size = 2) + 
+  theme(axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_blank(),
+        rect = element_blank()) 
+```
+
+<br> 
+
+#### $\third{- Masking Rasters}$ 
+
+`mask()` and `crop()` together clip a raster 
+
+```{r}
+canopy_2263 %>% 
+  plot()
+```
+
+```{r}
+canopy_2263 %>% 
+  mask(boros_2263) %>% 
+  crop(boros_2263) %>% 
+  plot()
+```
+
+<br> 
+
+#### $\third{- Overlaying Rasters}$ 
+
+`overlay()` with a function can manipulate a raster
+
+```{r}
+f <- function(rast) {
+  rast > 60 & rast < 100
+}
+
+canopy_2263 %>% 
+  overlay(fun = f) %>%
+  plot()
+```
+
+<br> 
+
+#### $\third{- Extracting Rasters}$ 
+
+`extract()` pulls aggregated raster information 
+
+```{r}
+mean_canopy <- canopy_2263 %>% 
+  extract(boros_2263, fun = mean)
+
+median_canopy <- canopy_2263 %>% 
+  extract(boros_2263, fun = median)
+
+max_canopy <- canopy_2263 %>% 
+  extract(boros_2263, fun = median)
+
+boros %>% 
+  mutate(mean_canopy = mean_canopy,
+         median_canopy = median_canopy)
+```
 
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/R_underline.png)
