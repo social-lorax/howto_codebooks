@@ -40,28 +40,19 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 
 ***
 
-### $\second{Python}$
-
-*In progress*
-
-****
-
 ### $\second{R}$
 
 ```{r}
+library(tidyverse)
 library(DBI)
 library(RMySQL)
-```
-
-```{r echo=FALSE, eval=FALSE}
-#Password = datacamp
 ```
 
 <br>
 
 #### $\third{- Create Connection}$ 
 
-```{r}
+```{r eval = FALSE}
 con <- dbConnect(RMySQL::MySQL(),
                  host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
                  dbname = "tweater",
@@ -74,29 +65,52 @@ con <- dbConnect(RMySQL::MySQL(),
 
 #### $\third{- List Tables}$ 
 
-```{r}
+```{r eval = FALSE}
 dbListTables(con)
+```
+
+```{r echo = FALSE}
+print(c("comments", "tweats", "users"))
 ```
 
 <br>
 
 #### $\third{- Read in Table}$ 
 
-```{r}
-df <- dbReadTable(con,"users")
+```{r eval = FALSE}
+df <- dbReadTable(con,"users") %>% 
+  as_tibble()
 
 head(df)
+```
+
+```{r echo = FALSE}
+tibble(id = c(1,2,3,4,5,6),
+       name = c("elisabeth", "mike", "thea", "thomas", "oliver", "kate"),
+       login = c("elismith", "mikey", "teatime", "tomatotom", "olivander", "katebenn"))
 ```
 
 <br>
 
 #### $\third{- Read in SQL Query}$ 
 
-```{r}
-dbGetQuery(con,
-           "SELECT *
-           FROM comments
-           WHERE user_id = 1")
+```{r eval = FALSE}
+df <-  dbGetQuery(con,
+
+  "SELECT *
+     FROM comments
+    WHERE user_id = 1"
+  
+  ) %>% as_tibble()
+
+head(df)
+```
+
+```{r echo = FALSE}
+tibble(id = c(1012,1004,1020,1014),
+       tweat_id = c(87,49,77,77),
+       user_id = c(1,1,1,1),
+       message = c("awesome! thanks!", "this is fabulous!", "couldn't be better", "saved my day"))
 ```
 
 <br>
@@ -105,6 +119,55 @@ dbGetQuery(con,
 
 ```{r eval=FALSE}
 dbDisconnect(con)
+```
+
+****
+
+### $\second{Python}$
+
+```{r echo = FALSE}
+library(reticulate)
+```
+
+```{python}
+import pandas as pd
+from sqlalchemy import create_engine
+```
+
+<br>
+
+#### $\third{- Create Connection}$ 
+
+```{python eval = FALSE}
+engine = create_engine("sqlite:///Chinook.sqlite")
+```
+
+<br>
+
+#### $\third{- List Tables}$ 
+
+```{python eval = FALSE}
+engine.table_names()
+```
+
+```{python echo = FALSE}
+print(['Album', 'Artist', 'Customer', 'Employee', 'Genre', 'Invoice', 'InvoiceLine', 'MediaType', 'Playlist', 'PlaylistTrack', 'Track'])
+```
+
+<br>
+
+#### $\third{- Read in SQL Query}$ 
+
+```{python eval = FALSE}
+df = pd.read_sql_query("SELECT * FROM Album", engine)
+
+df.head()
+```
+
+```{python echo = FALSE}
+pd.DataFrame({"AlbumId": [1,2,3,4,5],
+              "Title": ["For Those About To Rock We Salute You","Balls to the Wall", "Restless and Wild", "Let There Be Rock", "Big Ones"],
+              "ArtistId": [1,2,2,1,3]})
 ```
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
@@ -900,15 +963,9 @@ SELECT user_id,
 ```
 
 ```{r echo = FALSE}
-query <- "
-SELECT user_id,
-       COUNT(CASE WHEN message LIKE '%!%' THEN 'Excited Tweet' END) as 'Excited',
-       COUNT(CASE WHEN message LIKE '%?%' THEN 'Question' END) as 'Question'
-  FROM comments
- GROUP BY user_id;
-"
-
-dbGetQuery(con, query)
+tibble(user_id = c(1,2,3,4,5,6,7),
+       Excited = c(2,0,0,1,0,2,2),
+       Question = c(0,0,1,0,0,0,0))
 ```
 
 <br>
@@ -922,16 +979,9 @@ GROUP BY tweat_id;
 ```
 
 ```{r echo = FALSE}
-query <- "
-
-SELECT tweat_id,
-  ROUND(AVG(CASE WHEN message LIKE '%!%' THEN 1 ELSE 0 END), 2) as 'Excited',
-  ROUND(AVG(CASE WHEN message LIKE '%?%' THEN 1 ELSE 0 END), 2) as 'Question'
-FROM comments
-GROUP BY tweat_id;
-"
-
-dbGetQuery(con, query)
+tibble(tweat_id = c(49,75,77,87,88),
+       Excited = c(0.33, 1.00, 0.50, 1.00, 0.50),
+       Question = c(0.33, 0.00, 0.00, 0.00, 0.00))
 ```
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
