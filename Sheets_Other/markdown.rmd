@@ -56,7 +56,14 @@ output:
 [Return to Main Page](index.html)
 
 .```{r include=FALSE}
-knitr::opts_chunk$set(comment = NA, warning=FALSE, message=FALSE)`
+library(kableExtra)
+
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+output <- function(data) {
+  knitr::kable(data) %>% 
+    kable_styling(full_width = F)
+  }
 .```
 ```
 
@@ -259,6 +266,22 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 ****
 
+### $\second{Pretty}$
+
+```
+.```{r eval=FALSE}
+df_head()
+.```
+
+
+.```{r echo=FALSE}
+df_head() %>% output()
+.```
+```
+
+
+****
+
 ### $\second{Basic}$
 
 ```
@@ -289,4 +312,27 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/comms.jpg)
+
+# $\first{Python}$
+
+****
+
+### $\second{Run Code}$
+
+```
+.```{python}
+code
+.```
+```
+
+****
+
+### $\second{Install Module}$
+
+
+`py_install("module")`
+
+
+![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underlines/comms.jpg)
+
 [Return to Main Page](index.html)

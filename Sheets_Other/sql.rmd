@@ -14,7 +14,14 @@ output:
 \newcommand\third[1]{\color{skyblue}{\textrm{#1}}}
 
 ```{r include=FALSE}
+library(kableExtra)
+
 knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+output <- function(data) {
+  knitr::kable(data) %>% 
+    kable_styling(full_width = F)
+  }
 ```
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/sql.png)
@@ -87,7 +94,8 @@ head(df)
 ```{r echo = FALSE}
 tibble(id = c(1,2,3,4,5,6),
        name = c("elisabeth", "mike", "thea", "thomas", "oliver", "kate"),
-       login = c("elismith", "mikey", "teatime", "tomatotom", "olivander", "katebenn"))
+       login = c("elismith", "mikey", "teatime", "tomatotom", "olivander", "katebenn")) %>% 
+  output()
 ```
 
 <br>
@@ -110,7 +118,8 @@ head(df)
 tibble(id = c(1012,1004,1020,1014),
        tweat_id = c(87,49,77,77),
        user_id = c(1,1,1,1),
-       message = c("awesome! thanks!", "this is fabulous!", "couldn't be better", "saved my day"))
+       message = c("awesome! thanks!", "this is fabulous!", "couldn't be better", "saved my day")) %>% 
+  output()
 ```
 
 <br>
@@ -227,9 +236,14 @@ SELECT AVG(column) AS avg_column,
  WHERE column IS NOT NULL;  
 ```
 
-|avg_column |max_column |min_column |range_column|std_dev_column |
-|-----------|-----------|-----------|------------|---------------|
-|5.5        |10         |1          |9           |3.02765        |
+```{r echo = FALSE}
+tibble(avg_column = 5.5,
+       max_column = 10,
+       min_column = 1,
+       range_column = 9,
+       std_dev_column = 3.02765) %>% 
+  output()
+```
 
 <br> 
 
@@ -242,9 +256,12 @@ SELECT PERCENTILE_DISC(0.25) WITHIN GROUP (ORDER BY column) AS perc_25,
   FROM table;
 ```
 
-|perc_25 |median |perc_75 |
-|--------|-------|--------|
-|3.25    |5.5    |7.75    |
+```{r echo = FALSE}
+tibble(perc_25 = 3.25,
+       median = 5.5,
+       perc_75 = 7.75) %>% 
+  output()
+```
 
 <br>
 
@@ -264,16 +281,12 @@ LEFT JOIN table
  ORDER BY lower;
 ```
 
-|lower|upper|count|
-|-----|-----|-----|
-|30   |35   |0    |
-|35   |40   |74   |
-|40   |45   |155  |
-|45   |50   |39   |
-|50   |55   |445  |
-|55   |60   |35   |
-|60   |65   |0    |
-
+```{r echo = FALSE}
+tibble(lower = c(30, 35, 40, 45, 50, 55, 60),
+       upper = c(35, 40, 45, 50, 55, 60, 65),
+       count = c(0, 74, 155, 39, 445, 35, 0)) %>% 
+  output()
+```
 <br>
 
 #### $\third{- Correlation}$ 
@@ -283,9 +296,10 @@ SELECT CORR(column1, column2) AS corr_column1_column2
   FROM table;
 ```
 
-|corr_column1_column2|
-|--------------------|
-|0.02                |
+```{r echo = FALSE}
+tibble(corr_column1_column2 = 0.02) %>% 
+  output()
+```
 
 ```{r eval=FALSE}
 DROP TABLE IF EXISTS correlations;
@@ -318,11 +332,13 @@ SELECT measure,
   FROM correlations;
 ```
 
-|measure |column1 |column2 |column3|
-|--------|--------|--------|-------|
-|column1 |1.00    |0.02    |0.02   |
-|column2 |0.02    |1.00    |-0.09  |
-|column3 |0.02    |-0.09   |1.00   |
+```{r echo = FALSE}
+tibble(measure = c("column1", "column2", "column3"),
+       column1 = c(1.00, 0.02, 0.02),
+       column2 = c(0.02, 1.00, -0.09),
+       column3 = c(0.02, -0.09, 1.00)) %>% 
+  output()
+```
 
 ***
 
@@ -337,13 +353,13 @@ GROUP BY category
 ORDER BY count DESC;
 ```
 
-|category |count |
-|---------|------|
-|Apple    |4     |
-|banana   |3     |
-|apple    |2     |
-|Banana   |1     |
-| apple   |1     |
+```{r echo = FALSE}
+tibble(category = c("Apple", "banana", "apple", "Banana", " apple"),
+       count = c(4, 3, 2, 1, 1)) %>% 
+  output()
+```
+
+<br>
 
 What to look for: 
 
@@ -361,12 +377,11 @@ GROUP BY category
 ORDER BY count DESC;
 ```
 
-|category |count |
-|---------|------|
-|apple    |6     |
-|banana   |4     |
-| apple   |1     |
-
+```{r echo = FALSE}
+tibble(category = c("apple", "banana", " apple"),
+       count = c(6, 4, 1)) %>% 
+  output()
+```
 <br>
 
 ```{r eval=FALSE}
@@ -376,13 +391,11 @@ GROUP BY category
 ORDER BY count DESC;
 ```
 
-|category |count |
-|---------|------|
-|Apple    |4     |
-|banana   |3     |
-|apple    |3     |
-|Banana   |1     |
-
+```{r echo = FALSE}
+tibble(category = c("Apple", "banana", "apple", "Banana"),
+       count = c(4, 3, 3, 1)) %>% 
+  output()
+```
 <br>
 
 ```{r eval=FALSE}
@@ -401,10 +414,13 @@ LEFT JOIN recode
  GROUP BY standardized;
 ```
 
-|category |count |
-|---------|------|
-|apple    |7     |
-|banana   |4     |
+```{r echo = FALSE}
+tibble(category = c("apple", "banana"),
+       count = c(7,4)) %>% 
+  output()
+```
+
+<br> 
 
 #### $\third{- Substrings}$
 
@@ -416,9 +432,13 @@ SELECT category,
   FROM table;
 ```
 
-|category |left |right |middle |
-|---------|-----|------|-------|
-|abcde    |ab   |de    |cd     |
+```{r echo = FALSE}
+tibble(category = "abcde",
+       left = "ab",
+       right = "de",
+       middle = "cd") %>% 
+  output()
+```
 
 <br>
 
@@ -432,9 +452,13 @@ SELECT category,
   FROM table;
 ```
 
-|category |first |second |third |
-|---------|------|-------|------|
-|a,true,1 |a     |true   |1     |
+```{r echo = FALSE}
+tibble(category = "a,true,1",
+       first = "a",
+       second = "true",
+       third = "1") %>% 
+  output()
+```
 
 <br> 
 
@@ -446,9 +470,12 @@ SELECT first, last,
   FROM table;
 ```
 
-|first |last |full       |
-|------|-----|-----------|
-|James |Bond |Bond, James|
+```{r echo = FALSE}
+tibble(first = "James",
+       last = "Bond",
+       full = "Bond, James") %>% 
+  output()
+```
 
 ***
 
@@ -495,15 +522,10 @@ SELECT EXTRACT(YEAR FROM datetime)
 ORDER BY EXTRACT(DOW FROM datetime);
 ```
 
-|day       |
-|----------|
-|sunday    |
-|monday    |
-|tuesday   |
-|wednesday |
-|thursday  |
-|friday    |
-|saturday  |
+```{r echo = FALSE}
+tibble(day = c("Sunday", "Monday", "Tuesday", "Wednesday", " Thursday", "Friday", "Saturday")) %>% 
+  output()
+```
 
 <br> 
 
@@ -520,9 +542,11 @@ SELECT datetime, DATE_TRUNC('month', datetime) AS month
   FROM table;
 ```
 
-|datetime            |month               |
-|--------------------|--------------------|
-|2020-01-21 18:39:00 |2020-01-01 00:00:00 |
+```{r echo = FALSE}
+tibble(daytime = "2020-01-21 18:39:00",
+       month = "2020-01-01 00:00:00") %>% 
+  output()
+```
 
 <br>
 
@@ -534,12 +558,12 @@ SELECT datetime, DATE_TRUNC('month', datetime) AS month
 GROUP BY hour;
 ```
 
-|hour                |count |
-|--------------------|------|
-|2020-01-21 08:00:00 |22    |
-|2020-01-21 10:00:00 |33    |
-|2020-01-21 11:00:00 |44    |
-|2020-01-21 14:00:00 |55    |
+```{r echo = FALSE}
+tibble(hour = c("2020-01-21 08:00:00", "2020-01-21 10:00:00", "2020-01-21 11:00:00", "2020-01-21 14:00:00"),
+       count = c(22,33,44,55)) %>% 
+  output()
+```
+
 
 ```{r eval = FALSE}
 WITH full_hours AS(
@@ -555,15 +579,11 @@ LEFT JOIN table
  GROUP full_hours.hours;
 ```
 
-|hour                |count |
-|--------------------|------|
-|2020-01-21 08:00:00 |22    |
-|2020-01-21 09:00:00 |0     |
-|2020-01-21 10:00:00 |33    |
-|2020-01-21 11:00:00 |44    |
-|2020-01-21 12:00:00 |0     |
-|2020-01-21 13:00:00 |0     |
-|2020-01-21 14:00:00 |55    |
+```{r echo = FALSE}
+tibble(hour = c("2020-01-21 08:00:00", "2020-01-21 09:00:00", "2020-01-21 10:00:00", "2020-01-21 11:00:00", "2020-01-21 12:00:00", "2020-01-21 13:00:00", "2020-01-21 14:00:00"),
+       count = c(22,0,33,44,0,0,55)) %>% 
+  output()
+```
 
 <br> 
 
@@ -581,11 +601,10 @@ SELECT hour
             FROM table);
 ```
 
-|hour                |
-|--------------------|
-|2020-01-21 09:00:00 |
-|2020-01-21 12:00:00 |
-|2020-01-21 13:00:00 |
+```{r echo = FALSE}
+tibble(hour = c("2020-01-21 09:00:00", "2020-01-21 12:00:00", "2020-01-21 13:00:00")) %>% 
+  output()
+```
 
 <br>
 
@@ -598,13 +617,15 @@ SELECT datetime,
   FROM table;
 ```
 
-|datetime           |lag                 |lead                |
-|-------------------|--------------------|--------------------|
-|2018-04-23 00:01:00|                    |2018-04-23 12:01:00 |
-|2018-04-23 12:01:00|2018-04-23 00:01:00 |2018-04-24 00:01:00 |
-|2018-04-24 00:01:00|2018-04-23 12:01:00 |2018-04-24 12:01:00 |
-|2018-04-24 12:01:00|2018-04-24 12:01:00 |                    |
 
+```{r echo = FALSE}
+tibble(datetime = c("2018-04-23 00:01:00", "2018-04-23 12:01:00", "2018-04-24 00:01:00", "2018-04-24 12:01:00"),
+       lag = c(NA_character_, "2018-04-23 00:01:00", "2018-04-23 12:01:00", "2018-04-24 00:01:00"),
+       lead = c("2018-04-23 12:01:00", "2018-04-24 00:01:00", "2018-04-24 12:01:00", NA_real_)) %>% 
+  output()
+```
+
+<br> 
 
 ```{r eval=FALSE}
 SELECT datetime,
@@ -614,12 +635,13 @@ SELECT datetime,
   FROM table;
 ```
 
-|datetime           |amount |prev_amount |change |
-|-------------------|-------|------------|-------|
-|2018-04-23 00:01:00|31     |            |       |
-|2018-04-23 12:01:00|12     |31          |-19    |
-|2018-04-24 00:01:00|18     |12          |6      |
-|2018-04-24 12:01:00|13     |18          |-5     |
+```{r echo = FALSE}
+tibble(datetime = c("2018-04-23 00:01:00", "2018-04-23 12:01:00", "2018-04-24 00:01:00", "2018-04-24 12:01:00"),
+       amount = c(31,12,18,13),
+       pre_amount = c(NA_real_, 31, 12, 18),
+       change = c(NA_real_, -19, 6, -5)) %>% 
+  output()
+```
 
 ![](https://raw.githubusercontent.com/social-lorax/howto_codebooks/master/images/underline_sql.jpg)
 
